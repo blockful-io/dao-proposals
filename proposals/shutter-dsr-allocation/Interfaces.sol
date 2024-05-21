@@ -9,6 +9,8 @@ interface IERC20 {
   function balanceOf(address account) external view returns (uint256);
 
   function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+
+  function transfer(address recipient, uint256 amount) external returns (bool);
 }
 
 interface IDssPsm {
@@ -17,6 +19,8 @@ interface IDssPsm {
 
 interface IDaiJoin {
   function join(address usr, uint256 wad) external;
+
+  function exit(address usr, uint256 wad) external;
 }
 
 interface IVat {
@@ -35,4 +39,23 @@ interface IPot {
   function chi() external returns (uint256);
 
   function join(uint256 wad) external;
+
+  function exit(uint256 wad) external;
+}
+
+struct Call {
+  address target;
+  bytes callData;
+}
+
+struct Result {
+  bool success;
+  bytes returnData;
+}
+
+interface IMulticall {
+  function tryAggregate(
+    bool requireSuccess,
+    Call[] calldata calls
+  ) external payable returns (Result[] memory returnData);
 }

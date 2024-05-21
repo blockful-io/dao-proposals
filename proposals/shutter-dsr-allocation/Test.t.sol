@@ -2,7 +2,7 @@
 pragma solidity >=0.8.25 <0.9.0;
 
 import "./Interfaces.sol";
-import "./Calldata.sol";
+import "./ShutterDaoDSR.sol";
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
 
@@ -27,7 +27,7 @@ import { console2 } from "forge-std/src/console2.sol";
 //      0xA950524441892A31ebddF91d3cEEFa04Bf454466
 
 contract ShutterDao is Test {
-  /// @dev Top #1 USDC Holder will be impersonated
+  /// @dev Top #1 USDC Holder will be impersonating all calls
   address Alice = 0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa;
 
   // Amount of USDC to be sent to the DSR
@@ -56,24 +56,52 @@ contract ShutterDao is Test {
     vm.startPrank(Alice);
   }
 
-  function test_calldata() external {
-    Calldata executor = new Calldata(msg.sender);
-    USDC.approve(address(executor), amount * decimalsUSDC);
-    USDC.transferFrom(Alice, address(executor), amount * decimalsUSDC);
+  function test_ShutterDaoDSR() external {
+    ShutterDaoDSR executor = new ShutterDaoDSR(Alice);
+    USDC.transfer(address(executor), amount * decimalsUSDC);
+    // Run the execution from USDC deposit to the DSR Vault
+    executor.depositAll();
+    // Run the execution from DSR Vault to DAI withdraw
+    executor.withdrawAll();
   }
 
-  function test_calldata2() external {
-    bytes memory approve1 = abi.encodeWithSelector(USDC.approve.selector, Alice, amount * decimalsUSDC);
-    bytes memory sellGem = abi.encodeWithSelector(DssPsm.sellGem.selector, Alice, amount * decimalsUSDC);
-    bytes memory approve2 = abi.encodeWithSelector(DAI.approve.selector, address(DaiJoin), amount * decimalsDAI);
-    bytes memory join = abi.encodeWithSelector(DaiJoin.join.selector, Alice, amount * decimalsDAI);
-    bytes memory hope = abi.encodeWithSelector(Vat.hope.selector, address(Pot));
-    bytes memory drip = abi.encodeWithSelector(Pot.drip.selector);
+  function test_calldataForDao() external {
+    // We are deploying here but we assume the contract has been previously deployed
+    ShutterDaoDSR executor = new ShutterDaoDSR(Alice);
 
-    uint256 chi = Pot.drip();
-    uint256 RAY = 10 ** 27;
-    uint wad = mul(amount, RAY) / chi;
-    bytes memory join2 = abi.encodeWithSelector(Pot.join.selector, wad);
+    // IMulticall multicall = IMulticall(0xcA11bde05977b3631167028862bE2a173976CA11);
+
+    // Encode the calldata for the USDC approval
+    bytes memory approve = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
+    // Encode the calldata for the USDC transfer
+    bytes memory transferFrom = abi.encodeWithSelector(
+      IERC20.transferFrom.selector,
+      Alice,
+      address(executor),
+      amount * decimalsUSDC
+    );
+    // Encode the calldata for the depositAll function
+    bytes memory depositAll = abi.encodeWithSelector(executor.depositAll.selector);
+    // Encode the calldata for the withdrawAll function
+    bytes memory withdrawAll = abi.encodeWithSelector(executor.withdrawAll.selector);
+
+    // Aggregate the addresses
+    address[] memory targets = new address[](4);
+    targets[0] = address(USDC);
+    targets[1] = address(USDC);
+    targets[2] = address(executor);
+    targets[3] = address(executor);
+
+    // Aggregate the calls
+    bytes[] memory calls = new bytes[](4);
+    calls[0] = approve;
+    calls[1] = transferFrom;
+    calls[2] = depositAll;
+    calls[3] = withdrawAll;
+
+    // Execute the calls forwarding the msg.sender.
+    // If any of the transaction are unsuccessful, the whole transaction will revert
+    executor.multicall(targets, calls);
   }
 
   /// @dev Run it with `yarn test:fork` to see the console log.

@@ -3,10 +3,22 @@ pragma solidity >=0.8.25 <0.9.0;
 
 import "./Interfaces.sol";
 
-contract Calldata {
-  /// @dev Top #1 USDC Holder will be impersonated
-  address Alice = 0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa;
+contract Multicall {
+  function multicall(
+    address[] memory targets,
+    bytes[] calldata data
+  ) external virtual returns (bytes[] memory results) {
+    results = new bytes[](data.length);
+    for (uint256 i = 0; i < data.length; i++) {
+      (bool success, bytes memory result) = targets[i].delegatecall(data[i]);
+      require(success, "DelegateCall Failed");
+      results[i] = result;
+    }
+    return results;
+  }
+}
 
+contract ShutterDaoDSR is Multicall {
   /// @dev Stablecoin configurations
   uint256 constant decimalsUSDC = 10 ** 6;
   uint256 constant decimalsDAI = 10 ** 18;
@@ -25,16 +37,16 @@ contract Calldata {
   /// @dev DaiJoin will multiply the DAI amount by this constant before joining
   uint constant ONE = 10 ** 27;
 
-  // Admin address that will execute the script
-  address admin;
-  bool executed = false;
+  /// @dev The ShutterDAO Treasury is the admin
+  address public admin;
+  bool public executed = false;
 
   constructor(address _admin) {
     admin = _admin;
   }
 
-  function execute() internal {
-    executed = true;
+  function depositAll() external {
+    require(msg.sender == admin, "Only ShutterDAO");
 
     uint256 balanceOfUSDC = USDC.balanceOf(address(this));
     USDC.approve(AuthGemJoin5, balanceOfUSDC);
@@ -45,10 +57,27 @@ contract Calldata {
     DaiJoin.join(address(this), balanceOfDAI);
 
     Vat.hope(address(Pot));
+
     uint256 chi = Pot.drip();
     uint256 RAY = 10 ** 27;
     uint wad = mul(balanceOfDAI, RAY) / chi;
     Pot.join(wad);
+  }
+
+  function withdrawAll() external {
+    require(msg.sender == admin, "Only ShutterDAO");
+
+    Vat.hope(address(DaiJoin));
+    Pot.drip();
+
+    uint256 balanceOfPot = Pot.pie(address(this));
+    Pot.exit(balanceOfPot);
+
+    uint256 balanceOfVatDai = Vat.dai(address(this));
+    DaiJoin.exit(address(this), balanceOfVatDai / ONE);
+
+    uint256 balanceOfDAI = DAI.balanceOf(address(this));
+    DAI.transfer(admin, balanceOfDAI);
   }
 
   function mul(uint x, uint y) internal pure returns (uint z) {
