@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.25 <0.9.0;
 
-import "./ITest.sol";
+import "./Interfaces.sol";
+import "./Calldata.sol";
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
 
@@ -53,6 +54,24 @@ contract ShutterDao is Test {
   /// @dev A function invoked before each test case is run.
   function setUp() public virtual {
     vm.startPrank(Alice);
+  }
+
+  function test_calldata() external {
+    address executor = new Calldata(msg.sender);
+  }
+
+  function test_calldata2() external {
+    bytes memory approve1 = abi.encodeWithSelector(USDC.approve.selector, Alice, amount * decimalsUSDC);
+    bytes memory sellGem = abi.encodeWithSelector(DssPsm.sellGem.selector, Alice, amount * decimalsUSDC);
+    bytes memory approve2 = abi.encodeWithSelector(DAI.approve.selector, address(DaiJoin), amount * decimalsDAI);
+    bytes memory join = abi.encodeWithSelector(DaiJoin.join.selector, Alice, amount * decimalsDAI);
+    bytes memory hope = abi.encodeWithSelector(Vat.hope.selector, address(Pot));
+    bytes memory drip = abi.encodeWithSelector(Pot.drip.selector);
+
+    uint256 chi = Pot.drip();
+    uint256 RAY = 10 ** 27;
+    uint wad = mul(amount, RAY) / chi;
+    bytes memory join2 = abi.encodeWithSelector(Pot.join.selector, wad);
   }
 
   /// @dev Run it with `yarn test:fork` to see the console log.
