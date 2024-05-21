@@ -29,7 +29,7 @@ contract ShutterDao is Test {
   /// @dev Top #1 USDC Holder will be impersonated
   address Alice = 0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa;
 
-  // Amount to be converted
+  // Amount of USDC to be sent to the DSR
   uint256 amount = 3_000_000;
 
   /// @dev Stablecoin configurations
@@ -38,49 +38,70 @@ contract ShutterDao is Test {
   IERC20 USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
   IERC20 DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
-  /// @dev Maker PSM contract
+  /// @dev Maker PSM contracts to convert USDC to DAI
   IDssPsm DssPsm = IDssPsm(0x89B78CfA322F6C5dE0aBcEecab66Aee45393cC5A);
   address AuthGemJoin5 = 0x0A59649758aa4d66E25f08Dd01271e891fe52199;
 
-  /// @dev Maker DSR contract
+  /// @dev Maker DSR contracts to receive DAI
   IDaiJoin DaiJoin = IDaiJoin(0x9759A6Ac90977b93B58547b4A71c78317f391A28);
   IPot Pot = IPot(0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7);
   IVat Vat = IVat(0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B);
+
+  /// @dev DaiJoin will multiply the DAI amount by this constant before joining
+  uint constant ONE = 10 ** 27;
 
   /// @dev A function invoked before each test case is run.
   function setUp() public virtual {
     vm.startPrank(Alice);
   }
 
-  /// @dev Basic test. Run it with `yarn test:fork` to see the console log.
+  /// @dev Run it with `yarn test:fork` to see the console log.
   function test_depositUSDCtoPot() external {
     // Approve PSM to spend USDC {ERC20-approve}
     USDC.approve(AuthGemJoin5, amount * decimalsUSDC);
+    // Check if allowance is set for USDC {ERC20-allowance}
+    assert(USDC.allowance(Alice, AuthGemJoin5) == amount * decimalsUSDC);
 
     // Convert USDC to DAI {DssPsm-sellGem}
     DssPsm.sellGem(Alice, amount * decimalsUSDC);
-
-    // BalanceOf DAI {ERC20-balanceOf}
-    uint256 balanceBeforeDAI = DAI.balanceOf(Alice);
-
-    // Assert increased balance of DAI
-    assertEq(balanceBeforeDAI, amount * decimalsDAI);
+    // Check if DAI balance was increased {ERC20-balanceOf}
+    assert(DAI.balanceOf(Alice) == amount * decimalsDAI);
 
     // Approve Pot to spend DAI {ERC20-approve}
     DAI.approve(address(DaiJoin), amount * decimalsDAI);
+    // Check if allowance is set for DAI {ERC20-allowance}
+    assert(DAI.allowance(Alice, address(DaiJoin)) == amount * decimalsDAI);
 
-    // Join DAI to Vat {SdrManager-join}
+    // Add DAI to Vat {DaiJoin-join}
+    // This will burn DAI token and change the Vat balance of the user
     DaiJoin.join(Alice, amount * decimalsDAI);
+    // Check if DAI balance was decreased {ERC20-balanceOf}
+    assert(DAI.balanceOf(Alice) == 0);
+    // Check if DAI balance was increased in the Vat {Vat-dai}
+    // The DAI deposited can be seen in the user's internal state balance in the Vat
+    assert(Vat.dai(Alice) == amount * decimalsDAI * ONE);
 
     // Hope to join Vat {Vat-hope}
+    // This will permit the Pot contract to interact with the Vat contract on behalf of the user
     Vat.hope(address(Pot));
+    // Check if the Pot can interact with the Vat {Vat-can} on behalf of the user
+    assert(Vat.can(Alice, address(Pot)) == 1);
 
     // Drip DAI {Pot-drip}
+    // This will refresh the interest rate accrued
+    // Drip should always be called before joining or exiting the Pot
+    // Returns the new chi value
     uint256 chi = Pot.drip();
 
-    // Join with DAI {Pot-join}
+    // Join the Pot with internal amount of DAI in state storage {Pot-join}
+    // The amount is multiplied by Ray and divide by chi to get the approximated
+    // amount the user first joined using {DaiJoin-join}
     uint256 RAY = 10 ** 27;
-    Pot.join(mul(amount, RAY) / chi);
+    uint wad = mul(amount, RAY) / chi;
+    // Join the Pot with the approximated pie amount
+    Pot.join(wad);
+    // Check if the user's pie balance was increased {Pot-pie}
+    assert(Pot.pie(Alice) == wad);
   }
 
   /// @dev Multiplication function to prevent overflow fetched
