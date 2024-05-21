@@ -5,6 +5,14 @@ import "./ITest.sol";
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
 
+//  https://snapshot.org/#/shutterdao0x36.eth/proposal/0xb4a8f52edb23311c78c9523331e778578ef03ecf70255a6d6ad1eb3f437725dd
+//
+//  TEMP CHECK: Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract
+//
+//  -  Convert 3M USDC to DAI
+//  -  Deposit 3M DAI in the Dai Savings Rate (DSR) Contract
+//  -  Generate additional 120K DAI per annum (likely more temporarily) for Shutter DAO 0x36
+//
 //  ERC20 (USDC, DAI)
 //      0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 //      0x6B175474E89094C44Da98b954EedeAC495271d0F
@@ -17,7 +25,7 @@ import { console2 } from "forge-std/src/console2.sol";
 //      0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B
 //      0xA950524441892A31ebddF91d3cEEFa04Bf454466
 
-contract Calldata is Test {
+contract ShutterDao is Test {
   /// @dev Top #1 USDC Holder will be impersonated
   address Alice = 0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa;
 
@@ -76,7 +84,7 @@ contract Calldata is Test {
   }
 
   /// @dev Multiplication function to prevent overflow fetched
-  /// from the official DAI's Pot contract.
+  /// from the official Dai's Pot contract.
   function mul(uint x, uint y) internal pure returns (uint z) {
     require(y == 0 || (z = x * y) / y == x);
   }
