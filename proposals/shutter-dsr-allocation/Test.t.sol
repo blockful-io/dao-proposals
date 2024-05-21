@@ -57,7 +57,9 @@ contract ShutterDao is Test {
   }
 
   function test_calldata() external {
-    address executor = new Calldata(msg.sender);
+    Calldata executor = new Calldata(msg.sender);
+    USDC.approve(address(executor), amount * decimalsUSDC);
+    USDC.transferFrom(Alice, address(executor), amount * decimalsUSDC);
   }
 
   function test_calldata2() external {

@@ -47,7 +47,7 @@ contract Calldata {
     Vat.hope(address(Pot));
     uint256 chi = Pot.drip();
     uint256 RAY = 10 ** 27;
-    uint wad = mul(amount, RAY) / chi;
+    uint wad = mul(balanceOfDAI, RAY) / chi;
     Pot.join(wad);
   }
 
