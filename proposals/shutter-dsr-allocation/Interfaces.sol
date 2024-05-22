@@ -17,32 +17,6 @@ interface IDssPsm {
   function sellGem(address usr, uint256 gemAmt) external;
 }
 
-interface IDaiJoin {
-  function join(address usr, uint256 wad) external;
-
-  function exit(address usr, uint256 wad) external;
-}
-
-interface IVat {
-  function dai(address usr) external returns (uint256);
-
-  function hope(address usr) external;
-
-  function can(address bit, address usr) external returns (uint);
-}
-
-interface IPot {
-  function pie(address usr) external returns (uint256);
-
-  function drip() external returns (uint256);
-
-  function chi() external returns (uint256);
-
-  function join(uint256 wad) external;
-
-  function exit(uint256 wad) external;
-}
-
 interface ISavingsDai {
   function previewDeposit(uint256 assets) external view returns (uint256);
 
