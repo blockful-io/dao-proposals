@@ -3,6 +3,7 @@ pragma solidity >=0.8.25 <0.9.0;
 
 import "./Interfaces.sol";
 import "./ShutterDaoDSR.sol";
+// import "./Multicall.sol";
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
 
@@ -48,12 +49,78 @@ contract ShutterDao is Test {
   IPot Pot = IPot(0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7);
   IVat Vat = IVat(0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B);
 
+  /// @dev Maker DAI Savings Token
+  ISavingsDai SavingsDai = ISavingsDai(0x83F20F44975D03b1b09e64809B757c47f942BEeA);
+
   /// @dev DaiJoin will multiply the DAI amount by this constant before joining
   uint constant ONE = 10 ** 27;
+
+  /// @dev Multical contract to execute multiple calls in one transaction
+  // Multicall multicall = new Multicall();
 
   /// @dev A function invoked before each test case is run.
   function setUp() public virtual {
     vm.startPrank(Alice);
+  }
+
+  function test_depositUSDCtoSavingsDai() external {
+    // Approve PSM to spend USDC {ERC20-approve}
+    USDC.approve(AuthGemJoin5, amount * decimalsUSDC);
+    // Check if allowance is set for USDC {ERC20-allowance}
+    assert(USDC.allowance(Alice, AuthGemJoin5) == amount * decimalsUSDC);
+
+    // Convert USDC to DAI {DssPsm-sellGem}
+    DssPsm.sellGem(Alice, amount * decimalsUSDC);
+    // Check if DAI balance was increased {ERC20-balanceOf}
+    assert(DAI.balanceOf(Alice) == amount * decimalsDAI);
+
+    // Approve SavingsDai to spend DAI {ERC20-approve}
+    DAI.approve(address(SavingsDai), amount * decimalsDAI);
+    // Check if allowance is set for DAI {ERC20-allowance}
+    assert(DAI.allowance(Alice, address(SavingsDai)) == amount * decimalsDAI);
+
+    // Preview the amount of shares that will be received {SavingsDai-previewDeposit}
+    uint256 sharesToBeReceived = SavingsDai.previewDeposit(amount * decimalsDAI);
+    // Deposit DAI to SavingsDai {SavingsDai-deposit}
+    uint256 sharesReceived = SavingsDai.deposit(amount * decimalsDAI, Alice);
+    // Check if the amount of shares received is the same as the previewed amount {SavingsDai-deposit}
+    assert(sharesReceived == sharesToBeReceived);
+    // Check if the user's balance of shares was increased {SavingsDai-balanceOf}
+    assert(sharesReceived == SavingsDai.balanceOf(Alice));
+  }
+
+  function test_calldataForSavingsDai() external {
+    // Encode the calldata for the USDC approval
+    bytes memory approveUSDC = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
+    // Encode the calldata for the USDC swap on PSM for DAI
+    bytes memory sellGem = abi.encodeWithSelector(DssPsm.sellGem.selector, Alice, amount * decimalsUSDC);
+    // Encode the calldata for the DAI approval
+    bytes memory approveDAI = abi.encodeWithSelector(
+      IERC20.approve.selector,
+      address(SavingsDai),
+      amount * decimalsDAI
+    );
+    // Encode the calldata for the DAI deposit
+    bytes memory deposit = abi.encodeWithSelector(SavingsDai.deposit.selector, amount * decimalsDAI, Alice);
+
+    // Aggregate the addresses
+    address[] memory targets = new address[](4);
+    targets[0] = address(USDC);
+    targets[1] = address(DssPsm);
+    targets[2] = address(DAI);
+    targets[3] = address(SavingsDai);
+
+    // Aggregate the calls
+    bytes[] memory calls = new bytes[](4);
+    calls[0] = approveUSDC;
+    calls[1] = sellGem;
+    calls[2] = approveDAI;
+    calls[3] = deposit;
+
+    bytes[] memory results = new bytes[](4);
+    // results = multicall.delegateMulticall(targets, calls);
+
+    // assert(abi.decode(results[3], (uint256)) == SavingsDai.balanceOf(Alice));
   }
 
   function test_ShutterDaoDSR() external {
@@ -65,11 +132,9 @@ contract ShutterDao is Test {
     executor.withdrawAll();
   }
 
-  function test_calldataForDao() external {
+  function test_calldataForShutterDaoDSR() external {
     // We are deploying here but we assume the contract has been previously deployed
     ShutterDaoDSR executor = new ShutterDaoDSR(Alice);
-
-    // IMulticall multicall = IMulticall(0xcA11bde05977b3631167028862bE2a173976CA11);
 
     // Encode the calldata for the USDC approval
     bytes memory approve = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
@@ -101,7 +166,7 @@ contract ShutterDao is Test {
 
     // Execute the calls forwarding the msg.sender.
     // If any of the transaction are unsuccessful, the whole transaction will revert
-    executor.multicall(targets, calls);
+    executor.delegateMulticall(targets, calls);
   }
 
   /// @dev Run it with `yarn test:fork` to see the console log.

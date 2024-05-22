@@ -4,7 +4,7 @@ pragma solidity >=0.8.25 <0.9.0;
 import "./Interfaces.sol";
 
 contract Multicall {
-  function multicall(
+  function delegateMulticall(
     address[] memory targets,
     bytes[] calldata data
   ) external virtual returns (bytes[] memory results) {

@@ -43,19 +43,10 @@ interface IPot {
   function exit(uint256 wad) external;
 }
 
-struct Call {
-  address target;
-  bytes callData;
-}
+interface ISavingsDai {
+  function previewDeposit(uint256 assets) external view returns (uint256);
 
-struct Result {
-  bool success;
-  bytes returnData;
-}
+  function deposit(uint256 assets, address receiver) external returns (uint256 shares);
 
-interface IMulticall {
-  function tryAggregate(
-    bool requireSuccess,
-    Call[] calldata calls
-  ) external payable returns (Result[] memory returnData);
+  function balanceOf(address account) external view returns (uint256);
 }
