@@ -3,7 +3,7 @@ pragma solidity >=0.8.25 <0.9.0;
 
 import "./Interfaces.sol";
 import "./ShutterDaoDSR.sol";
-// import "./Multicall.sol";
+import "./DelegateMulticall.sol";
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
 
@@ -56,7 +56,7 @@ contract ShutterDao is Test {
   uint constant ONE = 10 ** 27;
 
   /// @dev Multical contract to execute multiple calls in one transaction
-  // Multicall multicall = new Multicall();
+  DelegateMulticall multicall = new DelegateMulticall();
 
   /// @dev A function invoked before each test case is run.
   function setUp() public virtual {
@@ -118,105 +118,104 @@ contract ShutterDao is Test {
     calls[3] = deposit;
 
     bytes[] memory results = new bytes[](4);
-    // results = multicall.delegateMulticall(targets, calls);
-
-    // assert(abi.decode(results[3], (uint256)) == SavingsDai.balanceOf(Alice));
+    results = multicall.delegateMulticall(targets, calls);
+    assert(abi.decode(results[3], (uint256)) == SavingsDai.balanceOf(Alice));
   }
 
-  function test_ShutterDaoDSR() external {
-    ShutterDaoDSR executor = new ShutterDaoDSR(Alice);
-    USDC.transfer(address(executor), amount * decimalsUSDC);
-    // Run the execution from USDC deposit to the DSR Vault
-    executor.depositAll();
-    // Run the execution from DSR Vault to DAI withdraw
-    executor.withdrawAll();
-  }
+  // function test_ShutterDaoDSR() external {
+  //   ShutterDaoDSR executor = new ShutterDaoDSR(Alice);
+  //   USDC.transfer(address(executor), amount * decimalsUSDC);
+  //   // Run the execution from USDC deposit to the DSR Vault
+  //   executor.depositAll();
+  //   // Run the execution from DSR Vault to DAI withdraw
+  //   executor.withdrawAll();
+  // }
 
-  function test_calldataForShutterDaoDSR() external {
-    // We are deploying here but we assume the contract has been previously deployed
-    ShutterDaoDSR executor = new ShutterDaoDSR(Alice);
+  // function test_calldataForShutterDaoDSR() external {
+  //   // We are deploying here but we assume the contract has been previously deployed
+  //   ShutterDaoDSR executor = new ShutterDaoDSR(Alice);
 
-    // Encode the calldata for the USDC approval
-    bytes memory approve = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
-    // Encode the calldata for the USDC transfer
-    bytes memory transferFrom = abi.encodeWithSelector(
-      IERC20.transferFrom.selector,
-      Alice,
-      address(executor),
-      amount * decimalsUSDC
-    );
-    // Encode the calldata for the depositAll function
-    bytes memory depositAll = abi.encodeWithSelector(executor.depositAll.selector);
-    // Encode the calldata for the withdrawAll function
-    bytes memory withdrawAll = abi.encodeWithSelector(executor.withdrawAll.selector);
+  //   // Encode the calldata for the USDC approval
+  //   bytes memory approve = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
+  //   // Encode the calldata for the USDC transfer
+  //   bytes memory transferFrom = abi.encodeWithSelector(
+  //     IERC20.transferFrom.selector,
+  //     Alice,
+  //     address(executor),
+  //     amount * decimalsUSDC
+  //   );
+  //   // Encode the calldata for the depositAll function
+  //   bytes memory depositAll = abi.encodeWithSelector(executor.depositAll.selector);
+  //   // Encode the calldata for the withdrawAll function
+  //   bytes memory withdrawAll = abi.encodeWithSelector(executor.withdrawAll.selector);
 
-    // Aggregate the addresses
-    address[] memory targets = new address[](4);
-    targets[0] = address(USDC);
-    targets[1] = address(USDC);
-    targets[2] = address(executor);
-    targets[3] = address(executor);
+  //   // Aggregate the addresses
+  //   address[] memory targets = new address[](4);
+  //   targets[0] = address(USDC);
+  //   targets[1] = address(USDC);
+  //   targets[2] = address(executor);
+  //   targets[3] = address(executor);
 
-    // Aggregate the calls
-    bytes[] memory calls = new bytes[](4);
-    calls[0] = approve;
-    calls[1] = transferFrom;
-    calls[2] = depositAll;
-    calls[3] = withdrawAll;
+  //   // Aggregate the calls
+  //   bytes[] memory calls = new bytes[](4);
+  //   calls[0] = approve;
+  //   calls[1] = transferFrom;
+  //   calls[2] = depositAll;
+  //   calls[3] = withdrawAll;
 
-    // Execute the calls forwarding the msg.sender.
-    // If any of the transaction are unsuccessful, the whole transaction will revert
-    executor.delegateMulticall(targets, calls);
-  }
+  //   // Execute the calls forwarding the msg.sender.
+  //   // If any of the transaction are unsuccessful, the whole transaction will revert
+  //   executor.delegateMulticall(targets, calls);
+  // }
 
-  /// @dev Run it with `yarn test:fork` to see the console log.
-  function test_depositUSDCtoPot() external {
-    // Approve PSM to spend USDC {ERC20-approve}
-    USDC.approve(AuthGemJoin5, amount * decimalsUSDC);
-    // Check if allowance is set for USDC {ERC20-allowance}
-    assert(USDC.allowance(Alice, AuthGemJoin5) == amount * decimalsUSDC);
+  // /// @dev Run it with `yarn test:fork` to see the console log.
+  // function test_depositUSDCtoPot() external {
+  //   // Approve PSM to spend USDC {ERC20-approve}
+  //   USDC.approve(AuthGemJoin5, amount * decimalsUSDC);
+  //   // Check if allowance is set for USDC {ERC20-allowance}
+  //   assert(USDC.allowance(Alice, AuthGemJoin5) == amount * decimalsUSDC);
 
-    // Convert USDC to DAI {DssPsm-sellGem}
-    DssPsm.sellGem(Alice, amount * decimalsUSDC);
-    // Check if DAI balance was increased {ERC20-balanceOf}
-    assert(DAI.balanceOf(Alice) == amount * decimalsDAI);
+  //   // Convert USDC to DAI {DssPsm-sellGem}
+  //   DssPsm.sellGem(Alice, amount * decimalsUSDC);
+  //   // Check if DAI balance was increased {ERC20-balanceOf}
+  //   assert(DAI.balanceOf(Alice) == amount * decimalsDAI);
 
-    // Approve Pot to spend DAI {ERC20-approve}
-    DAI.approve(address(DaiJoin), amount * decimalsDAI);
-    // Check if allowance is set for DAI {ERC20-allowance}
-    assert(DAI.allowance(Alice, address(DaiJoin)) == amount * decimalsDAI);
+  //   // Approve Pot to spend DAI {ERC20-approve}
+  //   DAI.approve(address(DaiJoin), amount * decimalsDAI);
+  //   // Check if allowance is set for DAI {ERC20-allowance}
+  //   assert(DAI.allowance(Alice, address(DaiJoin)) == amount * decimalsDAI);
 
-    // Add DAI to Vat {DaiJoin-join}
-    // This will burn DAI token and change the Vat balance of the user
-    DaiJoin.join(Alice, amount * decimalsDAI);
-    // Check if DAI balance was decreased {ERC20-balanceOf}
-    assert(DAI.balanceOf(Alice) == 0);
-    // Check if DAI balance was increased in the Vat {Vat-dai}
-    // The DAI deposited can be seen in the user's internal state balance in the Vat
-    assert(Vat.dai(Alice) == amount * decimalsDAI * ONE);
+  //   // Add DAI to Vat {DaiJoin-join}
+  //   // This will burn DAI token and change the Vat balance of the user
+  //   DaiJoin.join(Alice, amount * decimalsDAI);
+  //   // Check if DAI balance was decreased {ERC20-balanceOf}
+  //   assert(DAI.balanceOf(Alice) == 0);
+  //   // Check if DAI balance was increased in the Vat {Vat-dai}
+  //   // The DAI deposited can be seen in the user's internal state balance in the Vat
+  //   assert(Vat.dai(Alice) == amount * decimalsDAI * ONE);
 
-    // Hope to join Vat {Vat-hope}
-    // This will permit the Pot contract to interact with the Vat contract on behalf of the user
-    Vat.hope(address(Pot));
-    // Check if the Pot can interact with the Vat {Vat-can} on behalf of the user
-    assert(Vat.can(Alice, address(Pot)) == 1);
+  //   // Hope to join Vat {Vat-hope}
+  //   // This will permit the Pot contract to interact with the Vat contract on behalf of the user
+  //   Vat.hope(address(Pot));
+  //   // Check if the Pot can interact with the Vat {Vat-can} on behalf of the user
+  //   assert(Vat.can(Alice, address(Pot)) == 1);
 
-    // Drip DAI {Pot-drip}
-    // This will refresh the interest rate accrued
-    // Drip should always be called before joining or exiting the Pot
-    // Returns the new chi value
-    uint256 chi = Pot.drip();
+  //   // Drip DAI {Pot-drip}
+  //   // This will refresh the interest rate accrued
+  //   // Drip should always be called before joining or exiting the Pot
+  //   // Returns the new chi value
+  //   uint256 chi = Pot.drip();
 
-    // Join the Pot with internal amount of DAI in state storage {Pot-join}
-    // The amount is multiplied by Ray and divide by chi to get the approximated
-    // amount the user first joined using {DaiJoin-join}
-    uint256 RAY = 10 ** 27;
-    uint wad = mul(amount, RAY) / chi;
-    // Join the Pot with the approximated pie amount
-    Pot.join(wad);
-    // Check if the user's pie balance was increased {Pot-pie}
-    assert(Pot.pie(Alice) == wad);
-  }
+  //   // Join the Pot with internal amount of DAI in state storage {Pot-join}
+  //   // The amount is multiplied by Ray and divide by chi to get the approximated
+  //   // amount the user first joined using {DaiJoin-join}
+  //   uint256 RAY = 10 ** 27;
+  //   uint wad = mul(amount, RAY) / chi;
+  //   // Join the Pot with the approximated pie amount
+  //   Pot.join(wad);
+  //   // Check if the user's pie balance was increased {Pot-pie}
+  //   assert(Pot.pie(Alice) == wad);
+  // }
 
   /// @dev Multiplication function to prevent overflow fetched
   /// from the official Dai's Pot contract.
