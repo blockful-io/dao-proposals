@@ -27,6 +27,12 @@ contract ShutterDao is Test {
   /// @dev Top #1 USDC Holder will be impersonating all calls
   address Alice = 0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa;
 
+  /// @dev Our beloved contributor that will submit the proposal and approve it
+  address Joseph = 0x9Cc9C7F874eD77df06dCd41D95a2C858cd2a2506;
+
+  /// @dev Shutter Gnosis
+  address ShutterGnosis = 0x36bD3044ab68f600f6d3e081056F34f2a58432c4;
+
   // Amount of USDC to be sent to the DSR
   uint256 amount = 3_000_000;
 
@@ -42,6 +48,15 @@ contract ShutterDao is Test {
 
   /// @dev Maker DAI Savings Token
   ISavingsDai SavingsDai = ISavingsDai(0x83F20F44975D03b1b09e64809B757c47f942BEeA);
+
+  /// @dev Azorius contract to submit proposals
+  IAzorius Azorius = IAzorius(0xAA6BfA174d2f803b517026E93DBBEc1eBa26258e);
+
+  /// @dev Shutter DAO Votting contract
+  ILinearERC20Voting LinearERC20Voting = ILinearERC20Voting(0x4b29d8B250B8b442ECfCd3a4e3D91933d2db720F);
+
+  /// @dev Shutter Token
+  address ShutterToken = 0xe485E2f1bab389C08721B291f6b59780feC83Fd7;
 
   /// @dev DaiJoin will multiply the DAI amount by this constant before joining
   uint constant ONE = 10 ** 27;
@@ -113,5 +128,57 @@ contract ShutterDao is Test {
     bytes[] memory results = new bytes[](4);
     results = treasury.multicall(targets, calls);
     assert(abi.decode(results[3], (uint256)) == SavingsDai.balanceOf(address(treasury)));
+  }
+
+  function test_submitProposal() external {
+    IAzorius.Transaction[] memory transactions = new IAzorius.Transaction[](4);
+    transactions[0] = IAzorius.Transaction({
+      to: address(USDC),
+      value: 0,
+      data: abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC),
+      operation: IAzorius.Operation.Call
+    });
+    transactions[1] = IAzorius.Transaction({
+      to: address(DssPsm),
+      value: 0,
+      data: abi.encodeWithSelector(DssPsm.sellGem.selector, address(treasury), amount * decimalsUSDC),
+      operation: IAzorius.Operation.Call
+    });
+    transactions[2] = IAzorius.Transaction({
+      to: address(DAI),
+      value: 0,
+      data: abi.encodeWithSelector(IERC20.approve.selector, address(SavingsDai), amount * decimalsDAI),
+      operation: IAzorius.Operation.Call
+    });
+    transactions[3] = IAzorius.Transaction({
+      to: address(SavingsDai),
+      value: 0,
+      data: abi.encodeWithSelector(SavingsDai.deposit.selector, amount * decimalsDAI, address(treasury)),
+      operation: IAzorius.Operation.Call
+    });
+
+    uint32 totalProposalCountBefore = Azorius.totalProposalCount();
+
+    // Prank the Joseph, which can submit proposals and get it done {Azorius-submitProposal}
+    vm.startPrank(Joseph);
+    Azorius.submitProposal(
+      0x4b29d8B250B8b442ECfCd3a4e3D91933d2db720F,
+      "0x",
+      transactions,
+      "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
+    );
+
+    // Check if the total proposal count was increased by 1 {Azorius-totalProposalCount}
+    uint32 totalProposalCountAfter = Azorius.totalProposalCount();
+    assert(totalProposalCountAfter == totalProposalCountBefore + 1);
+
+    // Top #1 Shutter Token Holder
+    address gigawhale = 0x36bD3044ab68f600f6d3e081056F34f2a58432c4;
+    vm.startPrank(gigawhale);
+    IVotes(ShutterToken).delegate(Joseph);
+
+    // Vote for the proposal {LinearERC20Voting-vote}
+    vm.startPrank(Joseph);
+    LinearERC20Voting.vote(totalProposalCountAfter, 1);
   }
 }
