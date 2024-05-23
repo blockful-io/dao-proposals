@@ -33,6 +33,20 @@ interface IVotes {
 
 interface ILinearERC20Voting {
   function vote(uint32 _proposalId, uint8 _voteType) external;
+
+  function getProposalVotes(
+    uint32 _proposalId
+  )
+    external
+    view
+    returns (
+      uint256 noVotes,
+      uint256 yesVotes,
+      uint256 abstainVotes,
+      uint32 startBlock,
+      uint32 endBlock,
+      uint256 votingSupply
+    );
 }
 
 interface IAzorius {

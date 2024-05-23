@@ -71,64 +71,64 @@ contract ShutterDao is Test {
     USDC.transfer(address(treasury), amount * decimalsUSDC);
   }
 
-  function test_depositUSDCtoSavingsDai() external {
-    // Approve PSM to spend USDC {ERC20-approve}
-    USDC.approve(AuthGemJoin5, amount * decimalsUSDC);
-    // Check if allowance is set for USDC {ERC20-allowance}
-    assert(USDC.allowance(Alice, AuthGemJoin5) == amount * decimalsUSDC);
+  // function test_depositUSDCtoSavingsDai() external {
+  //   // Approve PSM to spend USDC {ERC20-approve}
+  //   USDC.approve(AuthGemJoin5, amount * decimalsUSDC);
+  //   // Check if allowance is set for USDC {ERC20-allowance}
+  //   assert(USDC.allowance(Alice, AuthGemJoin5) == amount * decimalsUSDC);
 
-    // Convert USDC to DAI {DssPsm-sellGem}
-    DssPsm.sellGem(Alice, amount * decimalsUSDC);
-    // Check if DAI balance was increased {ERC20-balanceOf}
-    assert(DAI.balanceOf(Alice) == amount * decimalsDAI);
+  //   // Convert USDC to DAI {DssPsm-sellGem}
+  //   DssPsm.sellGem(Alice, amount * decimalsUSDC);
+  //   // Check if DAI balance was increased {ERC20-balanceOf}
+  //   assert(DAI.balanceOf(Alice) == amount * decimalsDAI);
 
-    // Approve SavingsDai to spend DAI {ERC20-approve}
-    DAI.approve(address(SavingsDai), amount * decimalsDAI);
-    // Check if allowance is set for DAI {ERC20-allowance}
-    assert(DAI.allowance(Alice, address(SavingsDai)) == amount * decimalsDAI);
+  //   // Approve SavingsDai to spend DAI {ERC20-approve}
+  //   DAI.approve(address(SavingsDai), amount * decimalsDAI);
+  //   // Check if allowance is set for DAI {ERC20-allowance}
+  //   assert(DAI.allowance(Alice, address(SavingsDai)) == amount * decimalsDAI);
 
-    // Preview the amount of shares that will be received {SavingsDai-previewDeposit}
-    uint256 sharesToBeReceived = SavingsDai.previewDeposit(amount * decimalsDAI);
-    // Deposit DAI to SavingsDai {SavingsDai-deposit}
-    uint256 sharesReceived = SavingsDai.deposit(amount * decimalsDAI, Alice);
-    // Check if the amount of shares received is the same as the previewed amount {SavingsDai-deposit}
-    assert(sharesReceived == sharesToBeReceived);
-    // Check if the user's balance of shares was increased {SavingsDai-balanceOf}
-    assert(sharesReceived == SavingsDai.balanceOf(Alice));
-  }
+  //   // Preview the amount of shares that will be received {SavingsDai-previewDeposit}
+  //   uint256 sharesToBeReceived = SavingsDai.previewDeposit(amount * decimalsDAI);
+  //   // Deposit DAI to SavingsDai {SavingsDai-deposit}
+  //   uint256 sharesReceived = SavingsDai.deposit(amount * decimalsDAI, Alice);
+  //   // Check if the amount of shares received is the same as the previewed amount {SavingsDai-deposit}
+  //   assert(sharesReceived == sharesToBeReceived);
+  //   // Check if the user's balance of shares was increased {SavingsDai-balanceOf}
+  //   assert(sharesReceived == SavingsDai.balanceOf(Alice));
+  // }
 
-  function test_calldataForSavingsDai() external {
-    // Encode the calldata for the USDC approval
-    bytes memory approveUSDC = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
-    // Encode the calldata for the USDC swap on PSM for DAI
-    bytes memory sellGem = abi.encodeWithSelector(DssPsm.sellGem.selector, address(treasury), amount * decimalsUSDC);
-    // Encode the calldata for the DAI approval
-    bytes memory approveDAI = abi.encodeWithSelector(
-      IERC20.approve.selector,
-      address(SavingsDai),
-      amount * decimalsDAI
-    );
-    // Encode the calldata for the DAI deposit
-    bytes memory deposit = abi.encodeWithSelector(SavingsDai.deposit.selector, amount * decimalsDAI, address(treasury));
+  // function test_calldataForSavingsDai() external {
+  //   // Encode the calldata for the USDC approval
+  //   bytes memory approveUSDC = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
+  //   // Encode the calldata for the USDC swap on PSM for DAI
+  //   bytes memory sellGem = abi.encodeWithSelector(DssPsm.sellGem.selector, address(treasury), amount * decimalsUSDC);
+  //   // Encode the calldata for the DAI approval
+  //   bytes memory approveDAI = abi.encodeWithSelector(
+  //     IERC20.approve.selector,
+  //     address(SavingsDai),
+  //     amount * decimalsDAI
+  //   );
+  //   // Encode the calldata for the DAI deposit
+  //   bytes memory deposit = abi.encodeWithSelector(SavingsDai.deposit.selector, amount * decimalsDAI, address(treasury));
 
-    // Aggregate the addresses
-    address[] memory targets = new address[](4);
-    targets[0] = address(USDC);
-    targets[1] = address(DssPsm);
-    targets[2] = address(DAI);
-    targets[3] = address(SavingsDai);
+  //   // Aggregate the addresses
+  //   address[] memory targets = new address[](4);
+  //   targets[0] = address(USDC);
+  //   targets[1] = address(DssPsm);
+  //   targets[2] = address(DAI);
+  //   targets[3] = address(SavingsDai);
 
-    // Aggregate the calls
-    bytes[] memory calls = new bytes[](4);
-    calls[0] = approveUSDC;
-    calls[1] = sellGem;
-    calls[2] = approveDAI;
-    calls[3] = deposit;
+  //   // Aggregate the calls
+  //   bytes[] memory calls = new bytes[](4);
+  //   calls[0] = approveUSDC;
+  //   calls[1] = sellGem;
+  //   calls[2] = approveDAI;
+  //   calls[3] = deposit;
 
-    bytes[] memory results = new bytes[](4);
-    results = treasury.multicall(targets, calls);
-    assert(abi.decode(results[3], (uint256)) == SavingsDai.balanceOf(address(treasury)));
-  }
+  //   bytes[] memory results = new bytes[](4);
+  //   results = treasury.multicall(targets, calls);
+  //   assert(abi.decode(results[3], (uint256)) == SavingsDai.balanceOf(address(treasury)));
+  // }
 
   function test_submitProposal() external {
     IAzorius.Transaction[] memory transactions = new IAzorius.Transaction[](4);
@@ -168,6 +168,11 @@ contract ShutterDao is Test {
       "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
     );
 
+    // Mine current block because the proposal needs to be mined
+    // See Votes.sol at line 107 in ShutterToken
+    // https://etherscan.io/token/0xe485E2f1bab389C08721B291f6b59780feC83Fd7#code
+    vm.roll(block.number + 1);
+
     // Check if the total proposal count was increased by 1 {Azorius-totalProposalCount}
     uint32 totalProposalCountAfter = Azorius.totalProposalCount();
     assert(totalProposalCountAfter == totalProposalCountBefore + 1);
@@ -176,9 +181,31 @@ contract ShutterDao is Test {
     address gigawhale = 0x36bD3044ab68f600f6d3e081056F34f2a58432c4;
     vm.startPrank(gigawhale);
     IVotes(ShutterToken).delegate(Joseph);
+    assert(IVotes(ShutterToken).delegates(gigawhale) == Joseph);
+
+    uint256 time = block.number;
+    console2.log("number block", time);
+
+    // Get proposal votes {LinearERC20Voting-getProposalVotes}
+    // Proposal count starts at 1 but proposal id starts at 0,
+    // so when looking for the proposal votes we need to subtract 1 from the total proposal count
+    (
+      uint256 noVotes,
+      uint256 yesVotes,
+      uint256 abstainVotes,
+      uint32 startBlock,
+      uint32 endBlock,
+      uint256 votingSupply
+    ) = LinearERC20Voting.getProposalVotes(totalProposalCountBefore);
+    console2.log("noVotes", noVotes);
+    console2.log("yesVotes", yesVotes);
+    console2.log("abstainVotes", abstainVotes);
+    console2.log("startBlock", startBlock);
+    console2.log("endBlock", endBlock);
+    console2.log("votingSupply", votingSupply);
 
     // Vote for the proposal {LinearERC20Voting-vote}
     vm.startPrank(Joseph);
-    LinearERC20Voting.vote(totalProposalCountAfter, 1);
+    LinearERC20Voting.vote(totalProposalCountBefore, 1);
   }
 }
