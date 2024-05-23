@@ -23,6 +23,8 @@ interface ISavingsDai {
   function deposit(uint256 assets, address receiver) external returns (uint256 shares);
 
   function balanceOf(address account) external view returns (uint256);
+
+  function maxWithdraw(address owner) external view returns (uint256);
 }
 
 interface IVotes {
@@ -80,6 +82,17 @@ interface IAzorius {
   ) external;
 
   function totalProposalCount() external view returns (uint32);
+
+  enum ProposalState {
+    ACTIVE,
+    TIMELOCKED,
+    EXECUTABLE,
+    EXECUTED,
+    EXPIRED,
+    FAILED
+  }
+
+  function proposalState(uint32 _proposalId) external view returns (ProposalState);
 
   function getProposal(
     uint32 _proposalId

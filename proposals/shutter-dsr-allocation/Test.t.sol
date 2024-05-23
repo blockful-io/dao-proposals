@@ -32,9 +32,13 @@ contract ShutterDao is Test {
 
   /// @dev Shutter Gnosis
   address ShutterGnosis = 0x36bD3044ab68f600f6d3e081056F34f2a58432c4;
+  uint256 initialDaoUSDCbalance;
 
   // Amount of USDC to be sent to the DSR
   uint256 amount = 3_000_000;
+
+  /// @dev Shutter Token
+  address ShutterToken = 0xe485E2f1bab389C08721B291f6b59780feC83Fd7;
 
   /// @dev Stablecoin configurations
   uint256 constant decimalsUSDC = 10 ** 6;
@@ -55,21 +59,13 @@ contract ShutterDao is Test {
   /// @dev Shutter DAO Votting contract
   ILinearERC20Voting LinearERC20Voting = ILinearERC20Voting(0x4b29d8B250B8b442ECfCd3a4e3D91933d2db720F);
 
-  /// @dev Shutter Token
-  address ShutterToken = 0xe485E2f1bab389C08721B291f6b59780feC83Fd7;
-
-  /// @dev DaiJoin will multiply the DAI amount by this constant before joining
-  uint constant ONE = 10 ** 27;
-
   /// @dev Multical contract to execute multiple calls in one transaction
   Treasury treasury = new Treasury();
 
   /// @dev A function invoked before each test case is run.
   function setUp() public virtual {
     vm.startPrank(Alice);
-    // Deploy the treasury contract to simulate the Gnosis without governance
-    treasury = new Treasury();
-    USDC.transfer(address(treasury), amount * decimalsUSDC);
+    initialDaoUSDCbalance = USDC.balanceOf(ShutterGnosis);
   }
 
   // function test_depositUSDCtoSavingsDai() external {
@@ -99,6 +95,9 @@ contract ShutterDao is Test {
   // }
 
   // function test_calldataForSavingsDai() external {
+  //   // Deploy the treasury contract to simulate the Gnosis without governance
+  //   treasury = new Treasury();
+  //   USDC.transfer(address(treasury), amount * decimalsUSDC);
   //   // Encode the calldata for the USDC approval
   //   bytes memory approveUSDC = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
   //   // Encode the calldata for the USDC swap on PSM for DAI
@@ -142,6 +141,8 @@ contract ShutterDao is Test {
     // Going to future blocks so upperLookupRecent will return the correct value after delegation
     vm.roll(block.number + 50000);
 
+    // Prepare the transactions to submit the proposal. These are the steps that will be executed
+    // in the proposal once its approved.
     IAzorius.Transaction[] memory transactions = _prepareTransactionForProposal();
 
     uint32 totalProposalCountBefore = Azorius.totalProposalCount();
@@ -190,6 +191,18 @@ contract ShutterDao is Test {
 
     // Execute the proposal {Azorius-executeProposal}
     Azorius.executeProposal(totalProposalCountBefore, targets, values, data, operations);
+
+    // Validate if the proposal was executed correctly
+    IAzorius.ProposalState state = Azorius.proposalState(totalProposalCountBefore);
+    assert(state == IAzorius.ProposalState.EXECUTED);
+
+    // Validate if the Shutter Gnosis contract received the Savings Dai Token (SDR)
+    // Since there is a loss of precision in the process, we need to check if the amount is
+    // within the expected range using 0,000001% of the amount as the margin of error
+    assert(SavingsDai.maxWithdraw(ShutterGnosis) >= ((amount * decimalsDAI * 999_999) / 1_000_000));
+
+    // Validate if the USDC was transferred to the DSR contract
+    assert(USDC.balanceOf(ShutterGnosis) == initialDaoUSDCbalance - amount * decimalsUSDC);
   }
 
   function _prepareTransactionForExecution(
