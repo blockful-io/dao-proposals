@@ -67,6 +67,7 @@ contract ShutterDao is Test {
   /// @dev A function invoked before each test case is run.
   function setUp() public virtual {
     vm.startPrank(Alice);
+    // Deploy the treasury contract to simulate the Gnosis without governance
     treasury = new Treasury();
     USDC.transfer(address(treasury), amount * decimalsUSDC);
   }
@@ -131,31 +132,17 @@ contract ShutterDao is Test {
   // }
 
   function test_submitProposal() external {
-    IAzorius.Transaction[] memory transactions = new IAzorius.Transaction[](4);
-    transactions[0] = IAzorius.Transaction({
-      to: address(USDC),
-      value: 0,
-      data: abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC),
-      operation: IAzorius.Operation.Call
-    });
-    transactions[1] = IAzorius.Transaction({
-      to: address(DssPsm),
-      value: 0,
-      data: abi.encodeWithSelector(DssPsm.sellGem.selector, address(treasury), amount * decimalsUSDC),
-      operation: IAzorius.Operation.Call
-    });
-    transactions[2] = IAzorius.Transaction({
-      to: address(DAI),
-      value: 0,
-      data: abi.encodeWithSelector(IERC20.approve.selector, address(SavingsDai), amount * decimalsDAI),
-      operation: IAzorius.Operation.Call
-    });
-    transactions[3] = IAzorius.Transaction({
-      to: address(SavingsDai),
-      value: 0,
-      data: abi.encodeWithSelector(SavingsDai.deposit.selector, amount * decimalsDAI, address(treasury)),
-      operation: IAzorius.Operation.Call
-    });
+    // Delegate the votes of the top #1 Shutter Token holder to Joseph {Votes-delegate}
+    address gigawhale = ShutterGnosis;
+    vm.startPrank(gigawhale); // Pretending to be the gnosis contract
+    IVotes(ShutterToken).delegate(Joseph);
+    // Did Joseph became the delegate of the top #1 holder? {Votes-delegates}
+    assert(IVotes(ShutterToken).delegates(gigawhale) == Joseph);
+
+    // Going to future blocks so upperLookupRecent will return the correct value after delegation
+    vm.roll(block.number + 50000);
+
+    IAzorius.Transaction[] memory transactions = _prepareTransactionForProposal();
 
     uint32 totalProposalCountBefore = Azorius.totalProposalCount();
 
@@ -168,27 +155,111 @@ contract ShutterDao is Test {
       "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
     );
 
-    // Mine current block because the proposal needs to be mined
-    // See Votes.sol at line 107 in ShutterToken
-    // https://etherscan.io/token/0xe485E2f1bab389C08721B291f6b59780feC83Fd7#code
-    vm.roll(block.number + 1);
-
     // Check if the total proposal count was increased by 1 {Azorius-totalProposalCount}
     uint32 totalProposalCountAfter = Azorius.totalProposalCount();
     assert(totalProposalCountAfter == totalProposalCountBefore + 1);
 
-    // Top #1 Shutter Token Holder
-    address gigawhale = 0x36bD3044ab68f600f6d3e081056F34f2a58432c4;
-    vm.startPrank(gigawhale);
-    IVotes(ShutterToken).delegate(Joseph);
-    assert(IVotes(ShutterToken).delegates(gigawhale) == Joseph);
+    // Mine current block because the proposal needs to be mined before voting
+    // See Votes.sol at line 107 in ShutterToken
+    // https://etherscan.io/token/0xe485E2f1bab389C08721B291f6b59780feC83Fd7#code
+    vm.roll(block.number + 1);
 
-    uint256 time = block.number;
-    console2.log("number block", time);
+    // Vote for the proposal {LinearERC20Voting-vote}
+    LinearERC20Voting.vote(totalProposalCountBefore, 1);
 
     // Get proposal votes {LinearERC20Voting-getProposalVotes}
     // Proposal count starts at 1 but proposal id starts at 0,
     // so when looking for the proposal votes we need to subtract 1 from the total proposal count
+    _getProposalVotes(totalProposalCountBefore);
+
+    // Prepare the transactions to be executed
+    // We need to break them apart and join the similar types
+    (
+      address[] memory targets,
+      uint256[] memory values,
+      bytes[] memory data,
+      IAzorius.Operation[] memory operations
+    ) = _prepareTransactionForExecution(transactions);
+
+    // Mine the future blocks until the proposal ends the voting period
+    vm.roll(block.number + 21600);
+
+    // Check if the proposal passed {LinearERC20Voting-isPassed}
+    bool passed = LinearERC20Voting.isPassed(totalProposalCountBefore);
+    assert(passed);
+
+    // Execute the proposal {Azorius-executeProposal}
+    Azorius.executeProposal(totalProposalCountBefore, targets, values, data, operations);
+  }
+
+  function _prepareTransactionForExecution(
+    IAzorius.Transaction[] memory transactions
+  )
+    internal
+    pure
+    returns (
+      address[] memory targets,
+      uint256[] memory values,
+      bytes[] memory data,
+      IAzorius.Operation[] memory operations
+    )
+  {
+    targets = new address[](4);
+    targets[0] = transactions[0].to;
+    targets[1] = transactions[1].to;
+    targets[2] = transactions[2].to;
+    targets[3] = transactions[3].to;
+
+    values = new uint256[](4);
+    values[0] = transactions[0].value;
+    values[1] = transactions[0].value;
+    values[2] = transactions[0].value;
+    values[3] = transactions[0].value;
+
+    data = new bytes[](4);
+    data[0] = transactions[0].data;
+    data[1] = transactions[1].data;
+    data[2] = transactions[2].data;
+    data[3] = transactions[3].data;
+
+    operations = new IAzorius.Operation[](4);
+    operations[0] = transactions[0].operation;
+    operations[1] = transactions[1].operation;
+    operations[2] = transactions[2].operation;
+    operations[3] = transactions[3].operation;
+  }
+
+  function _prepareTransactionForProposal() internal view returns (IAzorius.Transaction[] memory) {
+    IAzorius.Transaction[] memory transactions = new IAzorius.Transaction[](4);
+    transactions[0] = IAzorius.Transaction({
+      to: address(USDC),
+      value: 0,
+      data: abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC),
+      operation: IAzorius.Operation.Call
+    });
+    transactions[1] = IAzorius.Transaction({
+      to: address(DssPsm),
+      value: 0,
+      data: abi.encodeWithSelector(DssPsm.sellGem.selector, ShutterGnosis, amount * decimalsUSDC),
+      operation: IAzorius.Operation.Call
+    });
+    transactions[2] = IAzorius.Transaction({
+      to: address(DAI),
+      value: 0,
+      data: abi.encodeWithSelector(IERC20.approve.selector, address(SavingsDai), amount * decimalsDAI),
+      operation: IAzorius.Operation.Call
+    });
+    transactions[3] = IAzorius.Transaction({
+      to: address(SavingsDai),
+      value: 0,
+      data: abi.encodeWithSelector(SavingsDai.deposit.selector, amount * decimalsDAI, ShutterGnosis),
+      operation: IAzorius.Operation.Call
+    });
+
+    return transactions;
+  }
+
+  function _getProposalVotes(uint32 _totalProposalCountBefore) internal view {
     (
       uint256 noVotes,
       uint256 yesVotes,
@@ -196,16 +267,12 @@ contract ShutterDao is Test {
       uint32 startBlock,
       uint32 endBlock,
       uint256 votingSupply
-    ) = LinearERC20Voting.getProposalVotes(totalProposalCountBefore);
+    ) = LinearERC20Voting.getProposalVotes(_totalProposalCountBefore);
     console2.log("noVotes", noVotes);
     console2.log("yesVotes", yesVotes);
     console2.log("abstainVotes", abstainVotes);
     console2.log("startBlock", startBlock);
     console2.log("endBlock", endBlock);
     console2.log("votingSupply", votingSupply);
-
-    // Vote for the proposal {LinearERC20Voting-vote}
-    vm.startPrank(Joseph);
-    LinearERC20Voting.vote(totalProposalCountBefore, 1);
   }
 }

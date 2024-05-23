@@ -26,13 +26,15 @@ interface ISavingsDai {
 }
 
 interface IVotes {
-  function delegate(address delegatee) external virtual;
+  function delegate(address delegatee) external;
 
-  function delegates(address account) external view virtual returns (address);
+  function delegates(address account) external view returns (address);
 }
 
 interface ILinearERC20Voting {
   function vote(uint32 _proposalId, uint8 _voteType) external;
+
+  function isPassed(uint32 _proposalId) external view returns (bool);
 
   function getProposalVotes(
     uint32 _proposalId
@@ -69,5 +71,26 @@ interface IAzorius {
     string calldata _metadata
   ) external;
 
+  function executeProposal(
+    uint32 _proposalId,
+    address[] memory _targets,
+    uint256[] memory _values,
+    bytes[] memory _data,
+    Operation[] memory _operations
+  ) external;
+
   function totalProposalCount() external view returns (uint32);
+
+  function getProposal(
+    uint32 _proposalId
+  )
+    external
+    view
+    returns (
+      address _strategy,
+      bytes32[] memory _txHashes,
+      uint32 _timelockPeriod,
+      uint32 _executionPeriod,
+      uint32 _executionCounter
+    );
 }
