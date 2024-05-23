@@ -68,68 +68,107 @@ contract ShutterDao is Test {
     initialDaoUSDCbalance = USDC.balanceOf(ShutterGnosis);
   }
 
-  // function test_depositUSDCtoSavingsDai() external {
-  //   // Approve PSM to spend USDC {ERC20-approve}
-  //   USDC.approve(AuthGemJoin5, amount * decimalsUSDC);
-  //   // Check if allowance is set for USDC {ERC20-allowance}
-  //   assert(USDC.allowance(Alice, AuthGemJoin5) == amount * decimalsUSDC);
+  /**
+   * @dev Tests the entire process of depositing USDC in the DSR contract
+   * and receiving the shares in the SavingsDai contract.
+   *
+   * The test will:
+   * 1. Approve the PSM to spend USDC.
+   * 2. Convert USDC to DAI.
+   * 3. Approve the SavingsDai to spend DAI.
+   * 4. Deposit DAI in the SavingsDai contract.
+   */
+  function test_depositUSDCtoSavingsDai() external {
+    // Approve PSM to spend USDC {ERC20-approve}
+    USDC.approve(AuthGemJoin5, amount * decimalsUSDC);
+    // Check if allowance is set for USDC {ERC20-allowance}
+    assert(USDC.allowance(Alice, AuthGemJoin5) == amount * decimalsUSDC);
 
-  //   // Convert USDC to DAI {DssPsm-sellGem}
-  //   DssPsm.sellGem(Alice, amount * decimalsUSDC);
-  //   // Check if DAI balance was increased {ERC20-balanceOf}
-  //   assert(DAI.balanceOf(Alice) == amount * decimalsDAI);
+    // Convert USDC to DAI {DssPsm-sellGem}
+    DssPsm.sellGem(Alice, amount * decimalsUSDC);
+    // Check if DAI balance was increased {ERC20-balanceOf}
+    assert(DAI.balanceOf(Alice) == amount * decimalsDAI);
 
-  //   // Approve SavingsDai to spend DAI {ERC20-approve}
-  //   DAI.approve(address(SavingsDai), amount * decimalsDAI);
-  //   // Check if allowance is set for DAI {ERC20-allowance}
-  //   assert(DAI.allowance(Alice, address(SavingsDai)) == amount * decimalsDAI);
+    // Approve SavingsDai to spend DAI {ERC20-approve}
+    DAI.approve(address(SavingsDai), amount * decimalsDAI);
+    // Check if allowance is set for DAI {ERC20-allowance}
+    assert(DAI.allowance(Alice, address(SavingsDai)) == amount * decimalsDAI);
 
-  //   // Preview the amount of shares that will be received {SavingsDai-previewDeposit}
-  //   uint256 sharesToBeReceived = SavingsDai.previewDeposit(amount * decimalsDAI);
-  //   // Deposit DAI to SavingsDai {SavingsDai-deposit}
-  //   uint256 sharesReceived = SavingsDai.deposit(amount * decimalsDAI, Alice);
-  //   // Check if the amount of shares received is the same as the previewed amount {SavingsDai-deposit}
-  //   assert(sharesReceived == sharesToBeReceived);
-  //   // Check if the user's balance of shares was increased {SavingsDai-balanceOf}
-  //   assert(sharesReceived == SavingsDai.balanceOf(Alice));
-  // }
+    // Preview the amount of shares that will be received {SavingsDai-previewDeposit}
+    uint256 sharesToBeReceived = SavingsDai.previewDeposit(amount * decimalsDAI);
+    // Deposit DAI to SavingsDai {SavingsDai-deposit}
+    uint256 sharesReceived = SavingsDai.deposit(amount * decimalsDAI, Alice);
+    // Check if the amount of shares received is the same as the previewed amount {SavingsDai-deposit}
+    assert(sharesReceived == sharesToBeReceived);
+    // Check if the user's balance of shares was increased {SavingsDai-balanceOf}
+    assert(sharesReceived == SavingsDai.balanceOf(Alice));
+  }
 
-  // function test_calldataForSavingsDai() external {
-  //   // Deploy the treasury contract to simulate the Gnosis without governance
-  //   treasury = new Treasury();
-  //   USDC.transfer(address(treasury), amount * decimalsUSDC);
-  //   // Encode the calldata for the USDC approval
-  //   bytes memory approveUSDC = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
-  //   // Encode the calldata for the USDC swap on PSM for DAI
-  //   bytes memory sellGem = abi.encodeWithSelector(DssPsm.sellGem.selector, address(treasury), amount * decimalsUSDC);
-  //   // Encode the calldata for the DAI approval
-  //   bytes memory approveDAI = abi.encodeWithSelector(
-  //     IERC20.approve.selector,
-  //     address(SavingsDai),
-  //     amount * decimalsDAI
-  //   );
-  //   // Encode the calldata for the DAI deposit
-  //   bytes memory deposit = abi.encodeWithSelector(SavingsDai.deposit.selector, amount * decimalsDAI, address(treasury));
+  /**
+   * @dev Tests the entire process of depositing USDC in the DSR contract but
+   * using the Treasury contract as a simulation of the Shutter DAO Gnosis contract.
+   *
+   * The test will:
+   * 1. Encode the calldata for the USDC approval.
+   * 2. Encode the calldata for the USDC swap on PSM for DAI.
+   * 3. Encode the calldata for the DAI approval.
+   * 4. Encode the calldata for the DAI deposit.
+   * 5. Execute the encoded calls via multicall in the treasury contract.
+   */
+  function test_calldataForSavingsDai() external {
+    // Deploy the treasury contract to simulate the Gnosis without governance
+    treasury = new Treasury();
+    USDC.transfer(address(treasury), amount * decimalsUSDC);
 
-  //   // Aggregate the addresses
-  //   address[] memory targets = new address[](4);
-  //   targets[0] = address(USDC);
-  //   targets[1] = address(DssPsm);
-  //   targets[2] = address(DAI);
-  //   targets[3] = address(SavingsDai);
+    // Encode the calldata for the USDC approval
+    bytes memory approveUSDC = abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC);
+    // Encode the calldata for the USDC swap on PSM for DAI
+    bytes memory sellGem = abi.encodeWithSelector(DssPsm.sellGem.selector, address(treasury), amount * decimalsUSDC);
+    // Encode the calldata for the DAI approval
+    bytes memory approveDAI = abi.encodeWithSelector(
+      IERC20.approve.selector,
+      address(SavingsDai),
+      amount * decimalsDAI
+    );
+    // Encode the calldata for the DAI deposit
+    bytes memory deposit = abi.encodeWithSelector(SavingsDai.deposit.selector, amount * decimalsDAI, address(treasury));
 
-  //   // Aggregate the calls
-  //   bytes[] memory calls = new bytes[](4);
-  //   calls[0] = approveUSDC;
-  //   calls[1] = sellGem;
-  //   calls[2] = approveDAI;
-  //   calls[3] = deposit;
+    // Aggregate the addresses
+    address[] memory targets = new address[](4);
+    targets[0] = address(USDC);
+    targets[1] = address(DssPsm);
+    targets[2] = address(DAI);
+    targets[3] = address(SavingsDai);
 
-  //   bytes[] memory results = new bytes[](4);
-  //   results = treasury.multicall(targets, calls);
-  //   assert(abi.decode(results[3], (uint256)) == SavingsDai.balanceOf(address(treasury)));
-  // }
+    // Aggregate the calls
+    bytes[] memory calls = new bytes[](4);
+    calls[0] = approveUSDC;
+    calls[1] = sellGem;
+    calls[2] = approveDAI;
+    calls[3] = deposit;
 
+    // Submit the encoded calls to the treasury contract which will invoke them
+    bytes[] memory results = new bytes[](4);
+    results = treasury.multicall(targets, calls);
+    // Check if the SavingsDai balance was received by the treasury
+    assert(abi.decode(results[3], (uint256)) == SavingsDai.balanceOf(address(treasury)));
+  }
+
+  /**
+   * @dev Tests the entire process of submitting a proposal to the Azorius contract
+   * voting for it via the LinearERC20Voting contract, and executing the proposal
+   * via the Azorius contract.
+   *
+   * NOTE: Joseph is an address that is allowed to submit proposals and execute them.
+   *
+   * The test will:
+   * 1. Delegate the votes of the top #1 Shutter Token holder to Joseph.
+   * 2. Encode the transactions to be executed in the proposal.
+   * 3. Submit a proposal to deposit 3M DAI in the DSR contract.
+   * 4. Vote for the proposal.
+   * 6. Prepare the transactions to be executed.
+   * 7. Execute the proposal.
+   */
   function test_submitProposal() external {
     // Delegate the votes of the top #1 Shutter Token holder to Joseph {Votes-delegate}
     address gigawhale = ShutterGnosis;
@@ -205,6 +244,54 @@ contract ShutterDao is Test {
     assert(USDC.balanceOf(ShutterGnosis) == initialDaoUSDCbalance - amount * decimalsUSDC);
   }
 
+  /**
+   * @dev Same as {test_submitProposal} but without any assertions and whitespaces.
+   */
+  function test_submitProposalNoAssertions() external {
+    vm.startPrank(ShutterGnosis); // Pretending to be the gnosis contract
+    IVotes(ShutterToken).delegate(Joseph);
+    // Going to future blocks so upperLookupRecent will return the correct value after delegation
+    vm.roll(block.number + 50000);
+    // Prepare the transactions to submit the proposal. These are the steps that will be executed
+    // in the proposal once its approved.
+    IAzorius.Transaction[] memory transactions = _prepareTransactionForProposal();
+    uint32 totalProposalCountBefore = Azorius.totalProposalCount();
+    // Prank the Joseph, which can submit proposals and get it done {Azorius-submitProposal}
+    vm.startPrank(Joseph);
+    Azorius.submitProposal(
+      0x4b29d8B250B8b442ECfCd3a4e3D91933d2db720F,
+      "0x",
+      transactions,
+      "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
+    );
+    // Mine current block because the proposal needs to be mined before voting
+    // See Votes.sol at line 107 in ShutterToken
+    // https://etherscan.io/token/0xe485E2f1bab389C08721B291f6b59780feC83Fd7#code
+    vm.roll(block.number + 1);
+    // Vote for the proposal {LinearERC20Voting-vote}
+    LinearERC20Voting.vote(totalProposalCountBefore, 1);
+    // Prepare the transactions to be executed
+    // We need to break them apart and join the similar types
+    (
+      address[] memory targets,
+      uint256[] memory values,
+      bytes[] memory data,
+      IAzorius.Operation[] memory operations
+    ) = _prepareTransactionForExecution(transactions);
+    // Mine the future blocks until the proposal ends the voting period
+    vm.roll(block.number + 21600);
+    // Execute the proposal {Azorius-executeProposal}
+    Azorius.executeProposal(totalProposalCountBefore, targets, values, data, operations);
+  }
+
+  /**
+   * @dev Prepares the transactions to be executed in the proposal.
+   * @param transactions The transactions submited in the proposal generated by {_prepareTransactionForProposal}
+   * @return targets The addresses of the contracts to be called.
+   * @return values The amount of ETH to be sent to the contracts.
+   * @return data The encoded calldata to be sent to the contracts.
+   * @return operations The type of operation to be executed in the contracts. Call or DelegateCall.
+   */
   function _prepareTransactionForExecution(
     IAzorius.Transaction[] memory transactions
   )
@@ -242,6 +329,10 @@ contract ShutterDao is Test {
     operations[3] = transactions[3].operation;
   }
 
+  /**
+   * @dev Prepares the transactions to be submitted in the proposal.
+   * @return transactions The transactions to be executed in the proposal.
+   */
   function _prepareTransactionForProposal() internal view returns (IAzorius.Transaction[] memory) {
     IAzorius.Transaction[] memory transactions = new IAzorius.Transaction[](4);
     transactions[0] = IAzorius.Transaction({
@@ -272,7 +363,11 @@ contract ShutterDao is Test {
     return transactions;
   }
 
-  function _getProposalVotes(uint32 _totalProposalCountBefore) internal view {
+  /**
+   * @dev Fetches the votes, start block and end block of a proposal and logs them.
+   * @param proposalId The proposalId whom will be fetched.
+   */
+  function _getProposalVotes(uint32 proposalId) internal view {
     (
       uint256 noVotes,
       uint256 yesVotes,
@@ -280,7 +375,7 @@ contract ShutterDao is Test {
       uint32 startBlock,
       uint32 endBlock,
       uint256 votingSupply
-    ) = LinearERC20Voting.getProposalVotes(_totalProposalCountBefore);
+    ) = LinearERC20Voting.getProposalVotes(proposalId);
     console2.log("noVotes", noVotes);
     console2.log("yesVotes", yesVotes);
     console2.log("abstainVotes", abstainVotes);
