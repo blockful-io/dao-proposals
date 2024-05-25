@@ -28,6 +28,11 @@ import { console2 } from "forge-std/src/console2.sol";
 //      0x0A59649758aa4d66E25f08Dd01271e891fe52199
 //  Maker DSR (SavingsDai)
 //      0x83F20F44975D03b1b09e64809B757c47f942BEeA
+//  Azorius Governance (Azorius, LinearERC20Voting, ShutterToken, Gnosis)
+//      0xAA6BfA174d2f803b517026E93DBBEc1eBa26258e
+//      0x4b29d8B250B8b442ECfCd3a4e3D91933d2db720F
+//      0xe485E2f1bab389C08721B291f6b59780feC83Fd7
+//      0x36bD3044ab68f600f6d3e081056F34f2a58432c4
 
 contract ShutterDao is Test {
   /// @dev Top #1 USDC Holder will be impersonating all calls

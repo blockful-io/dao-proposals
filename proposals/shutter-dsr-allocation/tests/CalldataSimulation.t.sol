@@ -31,7 +31,7 @@ contract TestCalldataSimulation is Test, Context {
    * 4. Encode the calldata for the DAI deposit.
    * 5. Execute the encoded calls via multicall in the treasury contract.
    */
-  function test_calldataUsdcToSDR() external {
+  function test_calldataWithSimulation() external {
     // Deploy the treasury contract to simulate the Gnosis without governance
     treasury = new Treasury();
     USDC.transfer(address(treasury), amount * decimalsUSDC);
