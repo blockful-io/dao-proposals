@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.25 <0.9.0;
 
-import "./Interfaces.sol";
-
 contract Multicall {
   function multicall(
     address[] memory targets,

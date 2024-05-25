@@ -1,8 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.25 <0.9.0;
 
-import "./Interfaces.sol";
-import { Treasury } from "./Treasury.sol";
+import "../interfaces/Azorius/IAzorius.sol";
+import "../interfaces/Azorius/ILinearERC20Voting.sol";
+import "../interfaces/Azorius/IVotes.sol";
+import "../interfaces/Dai/IDssPsm.sol";
+import "../interfaces/Dai/ISavingsDai.sol";
+import "../interfaces/ERC20/IERC20.sol";
+
+import { Treasury } from "../contracts/Treasury.sol";
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
 
@@ -115,7 +121,7 @@ contract ShutterDao is Test {
    * 4. Encode the calldata for the DAI deposit.
    * 5. Execute the encoded calls via multicall in the treasury contract.
    */
-  function test_calldataForSavingsDai() external {
+  function test_calldataUsdcToSDR() external {
     // Deploy the treasury contract to simulate the Gnosis without governance
     treasury = new Treasury();
     USDC.transfer(address(treasury), amount * decimalsUSDC);
@@ -177,19 +183,15 @@ contract ShutterDao is Test {
     // Did Joseph became the delegate of the top #1 holder? {Votes-delegates}
     assert(IVotes(ShutterToken).delegates(gigawhale) == Joseph);
 
-    // Going to future blocks so upperLookupRecent will return the correct value after delegation
-    vm.roll(block.number + 50000);
-
     // Prepare the transactions to submit the proposal. These are the steps that will be executed
     // in the proposal once its approved.
-    IAzorius.Transaction[] memory transactions = _prepareTransactionForProposal();
+    IAzorius.Transaction[] memory transactions = _prepareTransactionsForProposal();
 
-    uint32 totalProposalCountBefore = Azorius.totalProposalCount();
-
-    // Prank the Joseph, which can submit proposals and get it done {Azorius-submitProposal}
+    // Prank Joseph, which can submit proposals and get it done {Azorius-submitProposal}
     vm.startPrank(Joseph);
+    uint32 totalProposalCountBefore = Azorius.totalProposalCount();
     Azorius.submitProposal(
-      0x4b29d8B250B8b442ECfCd3a4e3D91933d2db720F,
+      address(LinearERC20Voting),
       "0x",
       transactions,
       "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
@@ -205,12 +207,8 @@ contract ShutterDao is Test {
     vm.roll(block.number + 1);
 
     // Vote for the proposal {LinearERC20Voting-vote}
+    // NO = 0 | YES = 1 | ABSTAIN = 2
     LinearERC20Voting.vote(totalProposalCountBefore, 1);
-
-    // Get proposal votes {LinearERC20Voting-getProposalVotes}
-    // Proposal count starts at 1 but proposal id starts at 0,
-    // so when looking for the proposal votes we need to subtract 1 from the total proposal count
-    _getProposalVotes(totalProposalCountBefore);
 
     // Prepare the transactions to be executed
     // We need to break them apart and join the similar types
@@ -219,7 +217,7 @@ contract ShutterDao is Test {
       uint256[] memory values,
       bytes[] memory data,
       IAzorius.Operation[] memory operations
-    ) = _prepareTransactionForExecution(transactions);
+    ) = _prepareTransactionsForExecution(transactions);
 
     // Mine the future blocks until the proposal ends the voting period
     vm.roll(block.number + 21600);
@@ -250,16 +248,14 @@ contract ShutterDao is Test {
   function test_submitProposalNoAssertions() external {
     vm.startPrank(ShutterGnosis); // Pretending to be the gnosis contract
     IVotes(ShutterToken).delegate(Joseph);
-    // Going to future blocks so upperLookupRecent will return the correct value after delegation
-    vm.roll(block.number + 50000);
     // Prepare the transactions to submit the proposal. These are the steps that will be executed
     // in the proposal once its approved.
-    IAzorius.Transaction[] memory transactions = _prepareTransactionForProposal();
+    IAzorius.Transaction[] memory transactions = _prepareTransactionsForProposal();
     uint32 totalProposalCountBefore = Azorius.totalProposalCount();
-    // Prank the Joseph, which can submit proposals and get it done {Azorius-submitProposal}
+    // Prank Joseph, which can submit proposals and get it done {Azorius-submitProposal}
     vm.startPrank(Joseph);
     Azorius.submitProposal(
-      0x4b29d8B250B8b442ECfCd3a4e3D91933d2db720F,
+      address(LinearERC20Voting),
       "0x",
       transactions,
       "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
@@ -277,8 +273,8 @@ contract ShutterDao is Test {
       uint256[] memory values,
       bytes[] memory data,
       IAzorius.Operation[] memory operations
-    ) = _prepareTransactionForExecution(transactions);
-    // Mine the future blocks until the proposal ends the voting period
+    ) = _prepareTransactionsForExecution(transactions);
+    // Mine the future blocks where the voting period ends
     vm.roll(block.number + 21600);
     // Execute the proposal {Azorius-executeProposal}
     Azorius.executeProposal(totalProposalCountBefore, targets, values, data, operations);
@@ -286,13 +282,13 @@ contract ShutterDao is Test {
 
   /**
    * @dev Prepares the transactions to be executed in the proposal.
-   * @param transactions The transactions submited in the proposal generated by {_prepareTransactionForProposal}
+   * @param transactions The transactions submited in the proposal generated by {_prepareTransactionsForProposal}
    * @return targets The addresses of the contracts to be called.
    * @return values The amount of ETH to be sent to the contracts.
    * @return data The encoded calldata to be sent to the contracts.
    * @return operations The type of operation to be executed in the contracts. Call or DelegateCall.
    */
-  function _prepareTransactionForExecution(
+  function _prepareTransactionsForExecution(
     IAzorius.Transaction[] memory transactions
   )
     internal
@@ -333,7 +329,7 @@ contract ShutterDao is Test {
    * @dev Prepares the transactions to be submitted in the proposal.
    * @return transactions The transactions to be executed in the proposal.
    */
-  function _prepareTransactionForProposal() internal view returns (IAzorius.Transaction[] memory) {
+  function _prepareTransactionsForProposal() internal view returns (IAzorius.Transaction[] memory) {
     IAzorius.Transaction[] memory transactions = new IAzorius.Transaction[](4);
     transactions[0] = IAzorius.Transaction({
       to: address(USDC),
@@ -361,26 +357,5 @@ contract ShutterDao is Test {
     });
 
     return transactions;
-  }
-
-  /**
-   * @dev Fetches the votes, start block and end block of a proposal and logs them.
-   * @param proposalId The proposalId whom will be fetched.
-   */
-  function _getProposalVotes(uint32 proposalId) internal view {
-    (
-      uint256 noVotes,
-      uint256 yesVotes,
-      uint256 abstainVotes,
-      uint32 startBlock,
-      uint32 endBlock,
-      uint256 votingSupply
-    ) = LinearERC20Voting.getProposalVotes(proposalId);
-    console2.log("noVotes", noVotes);
-    console2.log("yesVotes", yesVotes);
-    console2.log("abstainVotes", abstainVotes);
-    console2.log("startBlock", startBlock);
-    console2.log("endBlock", endBlock);
-    console2.log("votingSupply", votingSupply);
   }
 }
