@@ -1,10 +1,10 @@
 {
-  "name": "@prb/foundry-template",
-  "description": "Foundry-based template for developing Solidity smart contracts",
+  "name": "@blockful/dao-proposals",
+  "description": "Foundry-based test suit for blockful DAO proposals",
   "version": "1.0.0",
   "author": {
-    "name": "Paul Razvan Berg",
-    "url": "https://github.com/PaulRBerg"
+    "name": "0xneves",
+    "url": "https://github.com/0xneves"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.1"
