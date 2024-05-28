@@ -22,7 +22,7 @@ contract DepositUSDCtoSDR is Test, Context {
    * 3. Approve the SavingsDai to spend DAI.
    * 4. Deposit DAI in the SavingsDai contract.
    */
-  function test_depositUSDCToSDR() external {
+  function test_dsrAllocation_depositUSDCToSDR() external {
     // Start pranking with the USDC owner
     vm.startPrank(ShutterGnosis);
     // Stores the previous balance of the user

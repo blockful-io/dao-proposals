@@ -40,7 +40,7 @@ contract CalldataGovernance is Test, Context, Delegate, Vote, SubmitProposal, Ex
    * 6. Prepare the transactions to be executed.
    * 7. Execute the proposal.
    */
-  function test_calldataWithGovernanceNoAssertions() external {
+  function test_dsrAllocation_calldataWithGovernanceNoAssertions() external {
     // Delegate the Shutter Tokens from Gnosis to Joseph {ShutterToken-delegate}
     delegate(ShutterToken, ShutterGnosis, Joseph);
     // Prepare the transactions to submit the proposal. These are the steps that will be executed
@@ -79,7 +79,7 @@ contract CalldataGovernance is Test, Context, Delegate, Vote, SubmitProposal, Ex
    * 6. Prepare the transactions to be executed.
    * 7. Execute the proposal.
    */
-  function test_calldataWithGovernance() external {
+  function test_dsrAllocation_calldataWithGovernance() external {
     // Get the initial balance of the USDC in the DAO contract
     uint256 initialDaoUSDCbalance = USDC.balanceOf(ShutterGnosis);
     // Delegate the votes of the top #1 Shutter Token holder to Joseph {Votes-delegate}
