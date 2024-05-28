@@ -1,29 +1,41 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.25 <0.9.0;
 
-import "../../Context.sol";
-
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
 
-import "./UsdcToDai.t.sol";
+import "../../../contracts/dai/interfaces/IDssPsm.sol";
+import "../../../contracts/dai/interfaces/ISavingsDai.sol";
 
-contract TestDepositToSDR is Test, TestUSDCtoDai {
+import "../Context.sol";
+
+contract DepositUSDCtoSDR is Test, Context {
   /// @dev A function invoked before each test case is run.
-  function setUp() public virtual override {}
+  function setUp() public virtual {}
 
   /**
-   * @dev Tests the process of depositing DAI to the SDR contract.
+   * @dev Tests depositing USDC to the SDR contract.
    *
    * The test will:
-   * 1. Approve the SavingsDai to spend DAI.
-   * 2. Deposit DAI in the SavingsDai contract.
+   * 1. Approve the PSM to spend USDC.
+   * 2. Convert USDC to DAI.
+   * 3. Approve the SavingsDai to spend DAI.
+   * 4. Deposit DAI in the SavingsDai contract.
    */
-  function test_depositToSDR() external {
-    // Convert USDC to DAI {UsdcToDai-swapUsdcToDai}
-    swapUsdcToDai(ShutterGnosis, ShutterGnosis, amount * decimalsUSDC);
-    // Start pranking with the ShutterGnosis
+  function test_depositUSDCToSDR() external {
+    // Start pranking with the USDC owner
     vm.startPrank(ShutterGnosis);
+    // Stores the previous balance of the user
+    uint256 initialGnosisUSDCBalance = USDC.balanceOf(ShutterGnosis);
+    // Approve PSM to spend USDC {ERC20-approve}
+    USDC.approve(AuthGemJoin5, amount * decimalsUSDC);
+    // Check if allowance is set for USDC {ERC20-allowance}
+    assert(USDC.allowance(ShutterGnosis, AuthGemJoin5) == amount * decimalsUSDC);
+    // Convert USDC to DAI {DssPsm-sellGem}
+    DssPsm.sellGem(ShutterGnosis, amount * decimalsUSDC);
+    // Check if DAI balance was increased {ERC20-balanceOf}
+    assert(DAI.balanceOf(ShutterGnosis) == amount * decimalsDAI);
+    assert(USDC.balanceOf(ShutterGnosis) == initialGnosisUSDCBalance - amount * decimalsUSDC);
     // Stores the previous balance of the user
     uint256 balanceOfSavingsDaiBefore = SavingsDai.balanceOf(ShutterGnosis);
     // Approve SavingsDai to spend DAI {ERC20-approve}
