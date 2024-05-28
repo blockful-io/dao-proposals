@@ -4,7 +4,7 @@ pragma solidity >=0.8.25 <0.9.0;
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
 
-import "../Context.sol";
+import "../../Context.sol";
 import "./Delegate.t.sol";
 
 contract TestSubmitProposal is Test, Context, TestDelegate {
@@ -53,39 +53,5 @@ contract TestSubmitProposal is Test, Context, TestDelegate {
     vm.roll(block.number + 1);
     // Return the proposal ID
     return totalProposalCountBefore;
-  }
-
-  /**
-   * @dev Prepares the transactions to be submitted in the proposal.
-   * @return transactions The transactions to be executed in the proposal.
-   */
-  function _prepareTransactionsForProposal() internal view returns (IAzorius.Transaction[] memory) {
-    IAzorius.Transaction[] memory transactions = new IAzorius.Transaction[](4);
-    transactions[0] = IAzorius.Transaction({
-      to: address(USDC),
-      value: 0,
-      data: abi.encodeWithSelector(IERC20.approve.selector, AuthGemJoin5, amount * decimalsUSDC),
-      operation: IAzorius.Operation.Call
-    });
-    transactions[1] = IAzorius.Transaction({
-      to: address(DssPsm),
-      value: 0,
-      data: abi.encodeWithSelector(DssPsm.sellGem.selector, ShutterGnosis, amount * decimalsUSDC),
-      operation: IAzorius.Operation.Call
-    });
-    transactions[2] = IAzorius.Transaction({
-      to: address(DAI),
-      value: 0,
-      data: abi.encodeWithSelector(IERC20.approve.selector, address(SavingsDai), amount * decimalsDAI),
-      operation: IAzorius.Operation.Call
-    });
-    transactions[3] = IAzorius.Transaction({
-      to: address(SavingsDai),
-      value: 0,
-      data: abi.encodeWithSelector(SavingsDai.deposit.selector, amount * decimalsDAI, ShutterGnosis),
-      operation: IAzorius.Operation.Call
-    });
-
-    return transactions;
   }
 }

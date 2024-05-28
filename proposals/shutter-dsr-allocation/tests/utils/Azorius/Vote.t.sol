@@ -4,7 +4,7 @@ pragma solidity >=0.8.25 <0.9.0;
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
 
-import "../Context.sol";
+import "../../Context.sol";
 import "./SubmitProposal.t.sol";
 
 contract TestVote is Test, Context, TestSubmitProposal {

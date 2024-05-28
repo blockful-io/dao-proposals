@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.25 <0.9.0;
 
-import "./utils/Context.sol";
+import "./Context.sol";
 
 import { Test } from "forge-std/src/Test.sol";
 import { console2 } from "forge-std/src/console2.sol";
@@ -39,11 +39,7 @@ contract CalldataGovernance is Test, Context, TestExecuteProposal {
     // in the proposal once its approved.
     IAzorius.Transaction[] memory transactions = _prepareTransactionsForProposal();
     // Submit the proposal and return the proposal ID {Azorius-submitProposal}
-    uint32 proposalId = submitProposal(
-      Joseph,
-      transactions,
-      "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
-    );
+    uint32 proposalId = submitProposal(Joseph, transactions, metadata);
     // Vote yes for the proposal ID with the input address and forward the block to the end of the voting period {LinearERC20Voting-vote}
     // NO = 0 | YES = 1 | ABSTAIN = 2
     vote(Joseph, proposalId, 1);
