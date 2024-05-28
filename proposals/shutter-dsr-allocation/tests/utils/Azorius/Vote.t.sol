@@ -18,11 +18,7 @@ contract TestVote is Test, Context, TestSubmitProposal {
     // Delegate the Shutter Tokens from Gnosis to Joseph
     delegate(ShutterToken, ShutterGnosis, Joseph);
     // Submits the proposal as Joseph and return the proposal ID
-    proposalId = submitProposal(
-      Joseph,
-      _prepareTransactionsForProposal(),
-      "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
-    );
+    proposalId = submitProposal(Joseph, _prepareTransactionsForProposal(), metadata);
     // Prank Joseph, which can submit proposals and get it done {Azorius-submitProposal}
     vm.startPrank(Joseph);
     // Vote for the proposal {LinearERC20Voting-vote}

@@ -21,11 +21,7 @@ contract TestExecuteProposal is Test, Context, TestVote {
     // Delegate the Shutter Tokens from Gnosis to Joseph
     delegate(ShutterToken, ShutterGnosis, Joseph);
     // Submits the proposal and return the proposalId
-    uint32 proposalId = submitProposal(
-      Joseph,
-      _prepareTransactionsForProposal(),
-      "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
-    );
+    uint32 proposalId = submitProposal(Joseph, _prepareTransactionsForProposal(), metadata);
     // Votes for the proposal ID with a given address
     // and move the block to the end of the voting period
     vote(Joseph, proposalId, 1);

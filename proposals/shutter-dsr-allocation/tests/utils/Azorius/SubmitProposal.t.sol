@@ -24,12 +24,7 @@ contract TestSubmitProposal is Test, Context, TestDelegate {
     // after the proposal is submited. This happens because Azorius proposal Ids starts at 0 and count at 1.
     uint32 totalProposalCountBefore = Azorius.totalProposalCount();
     // Submit the proposal {Azorius-submitProposal}
-    Azorius.submitProposal(
-      address(LinearERC20Voting),
-      "0x",
-      transactions,
-      "Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract"
-    );
+    Azorius.submitProposal(address(LinearERC20Voting), "0x", transactions, metadata);
     // Check if the total proposal count was increased by 1 {Azorius-totalProposalCount}
     uint32 totalProposalCountAfter = Azorius.totalProposalCount();
     assert(totalProposalCountAfter == totalProposalCountBefore + 1);
