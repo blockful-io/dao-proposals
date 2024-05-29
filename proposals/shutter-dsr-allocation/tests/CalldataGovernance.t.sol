@@ -125,7 +125,7 @@ contract CalldataGovernance is Test, Context, Delegate, Vote, SubmitProposal, Ex
     // Validate if the proposal was executed correctly
     IAzorius.ProposalState state2 = Azorius.proposalState(proposalId);
     assert(state2 == IAzorius.ProposalState.EXECUTED);
-    // Validate if the Shutter Gnosis contract received the Savings Dai Token (SDR)
+    // Validate if the Shutter Gnosis contract received the Savings Dai Token (DSR)
     // Since there is a loss of precision in the process, we need to check if the amount is
     // within the expected range using 0,000001% of the amount as the margin of error
     assert(SavingsDai.maxWithdraw(ShutterGnosis) >= ((amount * decimalsDAI * 999_999) / 1_000_000));
