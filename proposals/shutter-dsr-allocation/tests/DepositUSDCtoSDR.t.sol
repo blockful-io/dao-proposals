@@ -9,12 +9,12 @@ import "../../../contracts/dai/interfaces/ISavingsDai.sol";
 
 import "../Context.sol";
 
-contract DepositUSDCtoSDR is Test, Context {
+contract DepositUSDCtoDSR is Test, Context {
   /// @dev A function invoked before each test case is run.
   function setUp() public virtual {}
 
   /**
-   * @dev Tests depositing USDC to the SDR contract.
+   * @dev Tests depositing USDC to the DSR contract.
    *
    * The test will:
    * 1. Approve the PSM to spend USDC.
@@ -22,7 +22,7 @@ contract DepositUSDCtoSDR is Test, Context {
    * 3. Approve the SavingsDai to spend DAI.
    * 4. Deposit DAI in the SavingsDai contract.
    */
-  function test_dsrAllocation_depositUSDCToSDR() external {
+  function test_dsrAllocation_depositUSDCToDSR() external {
     // Start pranking with the USDC owner
     vm.startPrank(ShutterGnosis);
     // Stores the previous balance of the user

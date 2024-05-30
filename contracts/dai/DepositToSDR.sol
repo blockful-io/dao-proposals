@@ -7,7 +7,7 @@ import { console2 } from "forge-std/src/console2.sol";
 import "./interfaces/ISavingsDai.sol";
 import "../token/interfaces/IERC20.sol";
 
-contract TestDepositDaiToSDR is Test {
+contract TestDepositDaiToDSR is Test {
   /// @dev Stablecoin configurations
   uint256 constant decimalsDAI = 10 ** 18;
   IERC20 DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
@@ -16,7 +16,7 @@ contract TestDepositDaiToSDR is Test {
   ISavingsDai SavingsDai = ISavingsDai(0x83F20F44975D03b1b09e64809B757c47f942BEeA);
 
   /**
-   * @dev Deposit DAI to the SDR contract and returns the received shares.
+   * @dev Deposit DAI to the DSR contract and returns the received shares.
    *
    * NOTE: `amount` is the USDC token and should not have decimals.
    *
@@ -31,7 +31,7 @@ contract TestDepositDaiToSDR is Test {
    * @param amount The amount of DAI to deposit.
    * @return sharesReceived The amount of shares received.
    */
-  function depositDaiToSDR(address prank, address to, uint256 amount) external returns (uint256 sharesReceived) {
+  function depositDaiToDSR(address prank, address to, uint256 amount) external returns (uint256 sharesReceived) {
     // Start pranking with the ShutterGnosis
     vm.startPrank(prank);
     // Approve SavingsDai to spend DAI {ERC20-approve}
