@@ -60,3 +60,43 @@ $ yarn test:dsr-allocation
 # Operation:  CALL
 # Data:       0x6e553f65000000000000000000000000000000000000000000027b46536c66c8e300000000000000000000000000000036bd3044ab68f600f6d3e081056f34f2a58432c4
 ```
+
+### Fractal or Decent Format
+
+```shell
+##### Transaction 1 - USDC Approval
+# Target: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+# Function: Approve
+# Parameter 1 Type: address
+# Parameter 1 Value: 0x0A59649758aa4d66E25f08Dd01271e891fe52199
+# Parameter 2 Type: uint256
+# Parameter 2 Value: 3000000000000
+# Transaction Value: 0
+
+##### Transaction 2 - DssPsm (swap USDC to DAI)
+# Target: 0x89B78CfA322F6C5dE0aBcEecab66Aee45393cC5A
+# Function: sellGem
+# Parameter 1 Type: address
+# Parameter 1 Value: 0x36bD3044ab68f600f6d3e081056F34f2a58432c4
+# Parameter 2 Type: uint256
+#Parameter 2 Value: 3000000000000
+# Transaction Value: 0
+
+##### Transaction 3 - DAI Approval
+# Target: 0x6B175474E89094C44Da98b954EedeAC495271d0F
+# Function: approve
+# Parameter 1 Type: address
+# Parameter 1 Value: 0x83F20F44975D03b1b09e64809B757c47f942BEeA
+# Parameter 2 Type: uint256
+# Parameter 2 Value: 3000000000000000000000000
+# Transaction Value: 0
+
+##### Tx[ 3 ] SavingsDai (deposit DAI to DSR)
+# Target: 0x83F20F44975D03b1b09e64809B757c47f942BEeA
+# Function: deposit
+# Parameter 1 Type: uint256
+# Parameter 1 Value: 3000000000000000000000000
+# Parameter 2 Type: address
+# Parameter 2 Value: 0x36bD3044ab68f600f6d3e081056F34f2a58432c4
+# Transaction Value: 0
+```
