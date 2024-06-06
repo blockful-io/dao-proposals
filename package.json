@@ -32,7 +32,7 @@
     "prettier:check": "prettier --check \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
     "prettier:write": "prettier --write \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
     "test": "forge test",
-    "test:dsr-allocation": "forge test --match-test dsrAllocation --rpc-url https://eth.llamarpc.com --fork-block-number 19917000 -vvv",
+    "test:dsr-allocation": "forge test --match-test dsrAllocation --rpc-url https://eth.llamarpc.com --fork-block-number 20033000 -vvv --via-ir",
     "test:coverage": "forge coverage",
     "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage"
   }
