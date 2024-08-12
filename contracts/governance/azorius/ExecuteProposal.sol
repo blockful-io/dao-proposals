@@ -63,28 +63,55 @@ contract ExecuteProposal is Test {
       IAzorius.Operation[] memory operations
     )
   {
-    targets = new address[](4);
-    targets[0] = transactions[0].to;
-    targets[1] = transactions[1].to;
-    targets[2] = transactions[2].to;
-    targets[3] = transactions[3].to;
+    uint256 transactionsLength = transactions.length;
 
-    values = new uint256[](4);
-    values[0] = transactions[0].value;
-    values[1] = transactions[0].value;
-    values[2] = transactions[0].value;
-    values[3] = transactions[0].value;
+    targets = new address[](transactionsLength);
+    values = new uint256[](transactionsLength);
+    data = new bytes[](transactionsLength);
+    operations = new IAzorius.Operation[](transactionsLength);
 
-    data = new bytes[](4);
-    data[0] = transactions[0].data;
-    data[1] = transactions[1].data;
-    data[2] = transactions[2].data;
-    data[3] = transactions[3].data;
-
-    operations = new IAzorius.Operation[](4);
-    operations[0] = transactions[0].operation;
-    operations[1] = transactions[1].operation;
-    operations[2] = transactions[2].operation;
-    operations[3] = transactions[3].operation;
+    for (uint256 i = 0; i < transactions.length; i++) {
+      targets[i] = transactions[i].to;
+      values[i] = transactions[i].value;
+      data[i] = transactions[i].data;
+      operations[i] = transactions[i].operation;
+    }
   }
+
+  // function _prepareTransactionsForExecutionBK(
+  //   IAzorius.Transaction[] memory transactions
+  // )
+  //   internal
+  //   pure
+  //   returns (
+  //     address[] memory targets,
+  //     uint256[] memory values,
+  //     bytes[] memory data,
+  //     IAzorius.Operation[] memory operations
+  //   )
+  // {
+  //   targets = new address[](4);
+  //   targets[0] = transactions[0].to;
+  //   targets[1] = transactions[1].to;
+  //   targets[2] = transactions[2].to;
+  //   targets[3] = transactions[3].to;
+
+  //   values = new uint256[](4);
+  //   values[0] = transactions[0].value;
+  //   values[1] = transactions[0].value;
+  //   values[2] = transactions[0].value;
+  //   values[3] = transactions[0].value;
+
+  //   data = new bytes[](4);
+  //   data[0] = transactions[0].data;
+  //   data[1] = transactions[1].data;
+  //   data[2] = transactions[2].data;
+  //   data[3] = transactions[3].data;
+
+  //   operations = new IAzorius.Operation[](4);
+  //   operations[0] = transactions[0].operation;
+  //   operations[1] = transactions[1].operation;
+  //   operations[2] = transactions[2].operation;
+  //   operations[3] = transactions[3].operation;
+  // }
 }
