@@ -7,7 +7,7 @@ transferring into the trasury and disable the vesting contract as a Safe module 
 See:
 [Discussion](https://shutternetwork.discourse.group/t/unclaimed-vest-administrative-tasks-for-shutter-dao-0x36-treasury/467)
 
-#### TEMP CHECK: Treasury Management Temporary Solution: Deposit 3M DAI in the DSR Contract
+#### Unclaimed vest: Administrative Tasks for Shutter DAO 0x36 Treasury
 
 - Claim $SHU tokens
 - Transfer to the treasury

@@ -24,7 +24,7 @@ contract Context is Test {
   /// @dev Shutter DAO Votting contract
   ILinearERC20Voting LinearERC20Voting = ILinearERC20Voting(0x4b29d8B250B8b442ECfCd3a4e3D91933d2db720F);
 
-  /// @dev Shutter Gnosis is USDC Holder
+  /// @dev Shutter Gnosis
   address ShutterGnosis = 0x36bD3044ab68f600f6d3e081056F34f2a58432c4;
   IGnosisSafe TreasuryContract = IGnosisSafe(ShutterGnosis);
 
