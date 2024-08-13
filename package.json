@@ -33,6 +33,9 @@
     "prettier:write": "prettier --write \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
     "test": "forge test",
     "test:dsr-allocation": "forge test --match-test dsrAllocation --rpc-url https://eth.llamarpc.com --fork-block-number 20033000 -vvv --via-ir",
+    "test:claim-unused-tokens": "forge test --match-test claim_unused --rpc-url https://eth.llamarpc.com --fork-block-number 20512800 -vvv --via-ir",
+    "test:disable-vest-as-module": "forge test --match-test disable_vest --rpc-url https://eth.llamarpc.com --fork-block-number 20512800 -vvv --via-ir",
+    "calldata:claim-and-disable": "forge test --match-test claim_disable --rpc-url https://eth.llamarpc.com --fork-block-number 20512800 -vvv --via-ir",
     "test:coverage": "forge coverage",
     "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage"
   }

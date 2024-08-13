@@ -18,15 +18,15 @@ contract Vote is Test {
    *
    * @param prank The address that will be impersonated.
    * @param token The token address that will be delegated
-   * @param _proposalId The proposal ID to vote
+   * @param proposalId The proposal ID to vote
    * @param choice The choice to vote for the proposal
    */
-  function vote(address prank, address token, uint32 _proposalId, uint8 choice) public {
+  function vote(address prank, address token, uint32 proposalId, uint8 choice) public {
     // Starting pranking the address that will vote
     vm.startPrank(prank);
     // Vote for the proposal {LinearERC20Voting-vote}
     // NO = 0 | YES = 1 | ABSTAIN = 2
-    ILinearERC20Voting(token).vote(_proposalId, choice);
+    ILinearERC20Voting(token).vote(proposalId, choice);
     // Mine the future blocks until the proposal voting period ends
     vm.roll(block.number + 21600);
     // Stop pranking before continuing the script
