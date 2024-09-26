@@ -1,2 +1,5 @@
 @openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
-forge-std/=node_modules/forge-std/
+@forge-std/=node_modules/forge-std/
+@ens/=dao/ens/
+@shutter/=dao/shutter/
+@contracts/=contracts/

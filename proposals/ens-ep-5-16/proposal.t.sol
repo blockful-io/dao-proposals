@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import { Test } from "forge-std/src/Test.sol";
-import { console2 } from "forge-std/src/console2.sol";
+import { Test } from "@forge-std/src/Test.sol";
+import { console2 } from "@forge-std/src/console2.sol";
 
-import { Users } from "../../contracts/utils/Types.sol";
+import { IToken } from "@ens/interfaces/IToken.sol";
+import { IGovernor } from "@ens/interfaces/IGovernor.sol";
+import { ITimelock } from "@ens/interfaces/ITimelock.sol";
+import { IERC20 } from "@contracts/token/interfaces/IERC20.sol";
 
-import { IToken } from "../../dao/ens/interfaces/IToken.sol";
-import { IGovernor } from "../../dao/ens/interfaces/IGovernor.sol";
-import { ITimelock } from "../../dao/ens/interfaces/ITimelock.sol";
-import { IERC20 } from "../../contracts/token/interfaces/IERC20.sol";
-
-import { ENS_Governance } from "../../dao/ens/ens.t.sol";
+import { ENS_Governance } from "@ens/ens.t.sol";
 
 contract Proposal_ENS_EP_5_16_Test is ENS_Governance {
     uint256 USDCbalanceBefore;

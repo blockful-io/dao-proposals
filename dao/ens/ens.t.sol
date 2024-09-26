@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import { Test } from "forge-std/src/Test.sol";
-import { console2 } from "forge-std/src/console2.sol";
+import { Test } from "@forge-std/src/Test.sol";
+import { console2 } from "@forge-std/src/console2.sol";
 
-import { IToken } from "./interfaces/IToken.sol";
-import { IGovernor } from "./interfaces/IGovernor.sol";
-import { ITimelock } from "./interfaces/ITimelock.sol";
-import { IENSToken } from "./interfaces/IENSToken.sol";
+import { IToken } from "@ens/interfaces/IToken.sol";
+import { IGovernor } from "@ens/interfaces/IGovernor.sol";
+import { ITimelock } from "@ens/interfaces/ITimelock.sol";
+import { IENSToken } from "@ens/interfaces/IENSToken.sol";
 
 abstract contract ENS_Governance is Test {
     enum ProposalState {
