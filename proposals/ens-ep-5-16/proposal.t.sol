@@ -19,6 +19,10 @@ contract Proposal_ENS_EP_5_16_Test is ENS_Governance {
 
     IERC20 USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
 
+    function _selectFork() internal override {
+        vm.createSelectFork({ blockNumber: 20_836_390, urlOrAlias: "mainnet" });
+    }
+
     function _proposer() internal view override returns (address) {
         return 0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5;
     }

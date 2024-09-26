@@ -43,8 +43,8 @@ abstract contract ENS_Governance is Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        vm.createSelectFork({ blockNumber: 20_836_390, urlOrAlias: "mainnet" });
-        
+        _selectFork();
+
         // Governance contracts ENS
         ensToken = IENSToken(0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72);
         governor = IGovernor(0x323A76393544d5ecca80cd6ef2A560C6a395b7E3);
@@ -112,6 +112,10 @@ abstract contract ENS_Governance is Test {
         assertTrue(timelock.isOperationDone(proposalIdInTimelock));
 
         _afterExecution();
+    }
+
+    function _selectFork() internal virtual {
+        vm.createSelectFork({ blockNumber: 20_836_390, urlOrAlias: "mainnet" });
     }
 
     function _proposer() internal virtual view returns (address);
