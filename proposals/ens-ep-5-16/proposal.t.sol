@@ -9,9 +9,15 @@ import { Users } from "../../contracts/utils/Types.sol";
 import { IToken } from "../../dao/ens/interfaces/IToken.sol";
 import { IGovernor } from "../../dao/ens/interfaces/IGovernor.sol";
 import { ITimelock } from "../../dao/ens/interfaces/ITimelock.sol";
+import { IERC20 } from "../../contracts/token/interfaces/IERC20.sol";
 
 contract Attack_DAO_Test is Test {
-     enum ProposalState {
+    uint256 USDCbalanceBefore;
+    uint256 expectedUSDCtransfer = 1218669760000;
+    uint256 USDCbalanceAfter;
+    address receiver = 0x690F0581eCecCf8389c223170778cD9D029606F2; // ENS Labs
+
+    enum ProposalState {
         Pending,
         Active,
         Canceled,
@@ -37,13 +43,15 @@ contract Attack_DAO_Test is Test {
     IToken public token;
     IGovernor public governor;
     ITimelock public timelock;
+    address public proposer;
+    address public voter;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        vm.createSelectFork({ blockNumber: 20_417_177, urlOrAlias: "mainnet" });
+        vm.createSelectFork({ blockNumber: 20_836_390, urlOrAlias: "mainnet" });
 
         // Create users for testing.
         users = Users({
@@ -57,23 +65,25 @@ contract Attack_DAO_Test is Test {
         token = IToken(0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72);
         governor = IGovernor(0x323A76393544d5ecca80cd6ef2A560C6a395b7E3);
         timelock = ITimelock(payable(0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7));
-
+        proposer = _proposer();
+        voter = _voter();
         // Label the base test contracts.
         vm.label(address(governor), "governor");
         vm.label(address(timelock), "timelock");
         vm.label(address(token), "token");
     }
     // Executing each step necessary on the proposal lifecycle to understand attack vectors
-    function test_Attack_DAO() public {
-        // Delegate from top token holder (binance, with 4m $ENS in this case)
-        vm.prank(0x5a52E96BAcdaBb82fd05763E25335261B270Efcb);
-        token.delegate(users.attacker);
-
-        uint256 votingPower = token.getVotes(users.attacker);
-        assertEq(votingPower, 1_546_912_192_000_000_000_000_000);
+    function test_proposal_ens_ep_5_16() public {
+        // Delegate from top token holder
+        vm.prank(voter);
+        token.delegate(voter);
 
         // Need to advance 1 block for delegation to be valid on governor
         vm.roll(block.number + 1);
+        
+        assertGt(token.getVotes(voter), governor.quorum(block.number - 1));
+        assertGt(token.getVotes(proposer), governor.proposalThreshold());
+
 
         // Creating a proposal that gives a proposer role to
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = _generateCallData();
@@ -81,9 +91,11 @@ contract Attack_DAO_Test is Test {
         string memory description = "";
         bytes32 descriptionHash = keccak256(bytes(description));
 
-        // Governor //
-        // Submit malicious proposal
-        vm.prank(users.attacker);
+        // Governor
+        // Submit proposal
+        _beforePropose();
+
+        vm.prank(proposer);
         uint256 proposalId = governor.propose(targets, values, calldatas, description);
         assertEq(governor.state(proposalId), 0);
 
@@ -92,7 +104,7 @@ contract Attack_DAO_Test is Test {
         assertEq(governor.state(proposalId), 1);
 
         // Vote for the proposal
-        vm.prank(users.attacker);
+        vm.prank(voter);
         governor.castVote(proposalId, 1);
 
         // Let the voting end
@@ -115,28 +127,43 @@ contract Attack_DAO_Test is Test {
         governor.execute(targets, values, calldatas, descriptionHash);
         assertTrue(timelock.isOperationDone(proposalIdInTimelock));
 
-        // Check result
-        assertTrue(timelock.hasRole(PROPOSER_ROLE, users.attacker));
-        assertFalse(timelock.hasRole(PROPOSER_ROLE, address(governor)));
-        assertEq(address(timelock).balance, 0);
-
-        console2.log(address(timelock).balance);
+        _afterExecution();
     }
 
+    function _proposer() internal returns (address) {
+        return 0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5;
+    }
+
+    function _voter() internal returns (address) {
+        return 0xd7A029Db2585553978190dB5E85eC724Aa4dF23f;
+    }
+
+    function _beforePropose() internal {
+        USDCbalanceBefore = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48).balanceOf(address(timelock));
+    }
 
     function _generateCallData() internal returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) {
-        targets[0] = address(timelock);
-        calldatas[0] = abi.encodeCall(timelock.grantRole, (timelock.PROPOSER_ROLE(), users.attacker));
+        uint256 items = 1;
+
+        address[] memory targets = new address[](items);
+        targets[0] = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+
+        uint256[] memory values = new uint256[](items);
         values[0] = 0;
-        
-        targets[1] = address(timelock);
-        calldatas[1] = abi.encodeCall(timelock.revokeRole, (timelock.PROPOSER_ROLE(), address(governor)));
-        values[1] = 0;
-        
-        targets[2] = users.attacker;
-        calldatas[2] = bytes("");
-        values[2] = address(timelock).balance;
-        
+
+        bytes[] memory calldatas = new bytes[](items);
+        calldatas[0] = hex"a9059cbb000000000000000000000000690f0581ececcf8389c223170778cd9d029606f20000000000000000000000000000000000000000000000000000011bbe60ce00";
+
+        bytes memory expectedCalldata = abi.encodeWithSelector(IERC20.transfer.selector, receiver, expectedUSDCtransfer);
+
+        assertEq(calldatas[0], expectedCalldata);
+
         return (targets, values, calldatas);
+    }
+    
+    function _afterExecution() internal {    
+        USDCbalanceAfter = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48).balanceOf(address(timelock));
+        assertEq(USDCbalanceBefore, USDCbalanceAfter + expectedUSDCtransfer);
+        assertNotEq(USDCbalanceAfter, USDCbalanceBefore);
     }
 }
