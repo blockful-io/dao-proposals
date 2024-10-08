@@ -8,8 +8,9 @@ import { IToken } from "@ens/interfaces/IToken.sol";
 import { IGovernor } from "@ens/interfaces/IGovernor.sol";
 import { ITimelock } from "@ens/interfaces/ITimelock.sol";
 import { IENSToken } from "@ens/interfaces/IENSToken.sol";
+import { IDAO } from "@contracts/token/interfaces/IDAO.sol";
 
-abstract contract ENS_Governance is Test {
+abstract contract ENS_Governance is Test, IDAO {
     enum ProposalState {
         Pending,
         Active,
@@ -114,19 +115,19 @@ abstract contract ENS_Governance is Test {
         _afterExecution();
     }
 
-    function _selectFork() internal virtual {
-        vm.createSelectFork({ blockNumber: 20_836_390, urlOrAlias: "mainnet" });
+    function _selectFork() public virtual {
+        vm.createSelectFork({ urlOrAlias: "mainnet" });
     }
 
-    function _proposer() internal virtual view returns (address);
+    function _proposer() public virtual view returns (address);
 
-    function _voter() internal virtual view returns (address) {
+    function _voter() public virtual view returns (address) {
         return 0xd7A029Db2585553978190dB5E85eC724Aa4dF23f;
     }
 
-    function _beforePropose() internal virtual;
+    function _beforePropose() public virtual;
 
-    function _generateCallData() internal virtual returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
+    function _generateCallData() public virtual returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
 
-    function _afterExecution() internal virtual;
+    function _afterExecution() public virtual;
 }
