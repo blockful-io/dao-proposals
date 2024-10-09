@@ -2,4 +2,5 @@
 @forge-std/=node_modules/forge-std/
 @ens/=dao/ens/
 @shutter/=dao/shutter/
+@uniswap/=dao/uniswap/
 @contracts/=contracts/
