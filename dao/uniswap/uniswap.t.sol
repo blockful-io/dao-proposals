@@ -72,13 +72,21 @@ abstract contract UNI_Governance is Test, IDAO {
             string memory description
         ) = _generateCallData();
 
-        console2.log("delegation:", uniToken.getCurrentVotes(voter));
-        console2.log("proposal threshold:", governor.proposalThreshold());
-        vm.prank(proposer);
-        governor.propose(targets, values, signatures, calldatas, description);
-
         _beforePropose();
-        _afterExecution();
+
+        vm.prank(proposer);
+        uint256 proposalId = governor.propose(targets, values, signatures, calldatas, description);
+        
+        // TODO: Assert states of proposal
+
+        vm.roll(block.number + votingDelay + 1);
+
+        vm.prank(voter);
+        governor.castVote(proposalId, 1);
+
+        vm.roll(block.number + votingPeriod);
+
+        _afterExecution(); 
     }
 
     function _selectFork() public virtual {
