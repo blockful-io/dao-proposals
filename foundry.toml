@@ -12,7 +12,7 @@
   out = "out"
   script = "script"
   solc = "0.8.25"
-  src = "src"
+  src = "dao"
   test = "proposals"
 
 [profile.ci]

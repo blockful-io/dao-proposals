@@ -7,7 +7,7 @@ import { console2 } from "@forge-std/src/console2.sol";
 import { IDAO } from "@contracts/token/interfaces/IDAO.sol";
 import { IToken } from "@uniswap/interface/IToken.sol";
 import { IGovernor } from "@uniswap/interface/IGovernor.sol";
-import { ITimelock } from "@uniswap/interface/Timelock.sol";
+import { ITimelock } from "@uniswap/interface/ITimelock.sol";
 
 abstract contract UNI_Governance is Test, IDAO {
     enum ProposalState {
@@ -34,6 +34,9 @@ abstract contract UNI_Governance is Test, IDAO {
     uint256 public proposalThreshold;
     uint256 public quorumVotes;
 
+    address public proposer;
+    address public voter;
+
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
@@ -48,12 +51,32 @@ abstract contract UNI_Governance is Test, IDAO {
 
         uniToken = IToken(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984);
         governor = IGovernor(0x408ED6354d4973f66138C91495F2f2FCbd8724C3);
-        timelock = ITimelock(0x1a9C8182C09F50C8318d769245beA52c32BE35BC);
+        timelock = ITimelock(payable(0x1a9C8182C09F50C8318d769245beA52c32BE35BC));
+
+        proposer = _proposer();
+        voter = _voter();
     }
 
     // Executing each step necessary on the proposal lifecycle to understand parameters
     function test_proposal() public {
-        _generateCallData();
+        vm.prank(voter);
+        uniToken.delegate(voter);
+
+        vm.roll(block.number + 1);
+
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            string[] memory signatures,
+            bytes[] memory calldatas,
+            string memory description
+        ) = _generateCallData();
+
+        console2.log("delegation:", uniToken.getCurrentVotes(voter));
+        console2.log("proposal threshold:", governor.proposalThreshold());
+        vm.prank(proposer);
+        governor.propose(targets, values, signatures, calldatas, description);
+
         _beforePropose();
         _afterExecution();
     }
@@ -62,7 +85,9 @@ abstract contract UNI_Governance is Test, IDAO {
         vm.createSelectFork({ urlOrAlias: "mainnet" });
     }
 
-    function _proposer() public view virtual returns (address);
+    function _proposer() public view virtual returns (address) {
+        return 0x1a9C8182C09F50C8318d769245beA52c32BE35BC;
+    }
 
     function _voter() public view virtual returns (address) {
         return 0x1a9C8182C09F50C8318d769245beA52c32BE35BC;
@@ -73,7 +98,13 @@ abstract contract UNI_Governance is Test, IDAO {
     function _generateCallData()
         public
         virtual
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
+        returns (
+            address[] memory targets,
+            uint256[] memory values,
+            string[] memory signatures,
+            bytes[] memory calldatas,
+            string memory description
+        );
 
     function _afterExecution() public virtual;
 }
