@@ -76,7 +76,7 @@ abstract contract UNI_Governance is Test, IDAO {
 
         vm.prank(proposer);
         uint256 proposalId = governor.propose(targets, values, signatures, calldatas, description);
-        
+
         // TODO: Assert states of proposal
 
         vm.roll(block.number + votingDelay + 1);
@@ -86,7 +86,13 @@ abstract contract UNI_Governance is Test, IDAO {
 
         vm.roll(block.number + votingPeriod);
 
-        _afterExecution(); 
+        governor.queue(proposalId);
+
+        vm.warp(block.timestamp + timelock.delay());
+
+        governor.execute(proposalId);
+
+        _afterExecution();
     }
 
     function _selectFork() public virtual {
