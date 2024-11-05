@@ -34,7 +34,13 @@ contract Proposal_ENS_EP_5_16_Test is ENS_Governance {
     function _generateCallData()
         public
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (
+            address[] memory targets,
+            uint256[] memory values,
+            string[] memory signatures,
+            bytes[] memory calldatas,
+            string memory description
+        )
     {
         uint256 items = 1;
 
@@ -52,7 +58,7 @@ contract Proposal_ENS_EP_5_16_Test is ENS_Governance {
 
         assertEq(calldatas[0], expectedCalldata);
 
-        return (targets, values, calldatas);
+        return (targets, values, signatures, calldatas, "");
     }
 
     function _afterExecution() public override {

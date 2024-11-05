@@ -41,7 +41,15 @@ interface IENSToken {
     function nonces(address owner) external view returns (uint256);
     function numCheckpoints(address account) external view returns (uint32);
     function owner() external view returns (address);
-    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    )
         external;
     function renounceOwnership() external;
     function setMerkleRoot(bytes32 _merkleRoot) external;

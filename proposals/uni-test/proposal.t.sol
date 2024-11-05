@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import { console2 } from "@forge-std/src/console2.sol";
-
 import { UNI_Governance } from "@uniswap/uniswap.t.sol";
 
 contract Proposal_UNI_Test is UNI_Governance {

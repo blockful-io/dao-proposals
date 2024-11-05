@@ -58,6 +58,7 @@ abstract contract ENS_Governance is Test, IDAO {
         vm.label(address(ensToken), "ensToken");
     }
     // Executing each step necessary on the proposal lifecycle to understand attack vectors
+
     function test_proposal() public {
         // Delegate from top token holder
         vm.prank(voter);
@@ -65,15 +66,19 @@ abstract contract ENS_Governance is Test, IDAO {
 
         // Need to advance 1 block for delegation to be valid on governor
         vm.roll(block.number + 1);
-        
+
         assertGt(ensToken.getVotes(voter), governor.quorum(block.number - 1));
         assertGt(ensToken.getVotes(proposer), governor.proposalThreshold());
 
-
         // Creating a proposal that gives a proposer role to
-        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = _generateCallData();
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            string[] memory signatures,
+            bytes[] memory calldatas,
+            string memory description
+        ) = _generateCallData();
 
-        string memory description = "";
         bytes32 descriptionHash = keccak256(bytes(description));
 
         // Governor
@@ -119,15 +124,24 @@ abstract contract ENS_Governance is Test, IDAO {
         vm.createSelectFork({ urlOrAlias: "mainnet" });
     }
 
-    function _proposer() public virtual view returns (address);
+    function _proposer() public view virtual returns (address);
 
-    function _voter() public virtual view returns (address) {
+    function _voter() public view virtual returns (address) {
         return 0xd7A029Db2585553978190dB5E85eC724Aa4dF23f;
     }
 
     function _beforePropose() public virtual;
 
-    function _generateCallData() public virtual returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
+    function _generateCallData()
+        public
+        virtual
+        returns (
+            address[] memory targets,
+            uint256[] memory values,
+            string[] memory signatures,
+            bytes[] memory calldatas,
+            string memory description
+        );
 
     function _afterExecution() public virtual;
 }
