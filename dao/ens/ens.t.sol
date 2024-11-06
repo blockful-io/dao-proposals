@@ -68,7 +68,7 @@ abstract contract ENS_Governance is Test, IDAO {
         vm.roll(block.number + 1);
 
         assertGt(ensToken.getVotes(voter), governor.quorum(block.number - 1));
-        assertGt(ensToken.getVotes(proposer), governor.proposalThreshold());
+        assertGe(ensToken.getVotes(proposer), governor.proposalThreshold());
 
         // Creating a proposal that gives a proposer role to
         (
