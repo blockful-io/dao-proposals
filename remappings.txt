@@ -1,6 +1,6 @@
 @openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
 @forge-std/=node_modules/forge-std/
-@ens/=dao/ens/
-@shutter/=dao/shutter/
-@uniswap/=dao/uniswap/
-@contracts/=contracts/
+@ens/=src/ens/
+@shutter/=src/shutter/
+@uniswap/=src/uniswap/
+@contracts/=src/

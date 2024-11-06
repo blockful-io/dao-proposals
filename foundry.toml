@@ -12,8 +12,8 @@
   out = "out"
   script = "script"
   solc = "0.8.25"
-  src = "dao"
-  test = "proposals"
+  src = "src"
+  test = "src"
 
 [profile.ci]
   fuzz = { runs = 10_000 }
