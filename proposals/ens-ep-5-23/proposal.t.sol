@@ -12,18 +12,18 @@ import { IERC20 } from "@contracts/token/interfaces/IERC20.sol";
 import { ENS_Governance } from "@ens/ens.t.sol";
 
 contract Proposal_ENS_EP_5_23_Test is ENS_Governance {
+    IERC20 USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+    IERC20 ENS = IERC20(0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72);
+
     uint256 USDCbalanceBefore;
-    uint256 expectedUSDCtransfer = 100_000_000_000;
+    uint256 expectedUSDCtransfer = 100_000 * 10 ** 6; // USDC decimals
     uint256 USDCbalanceAfter;
 
     uint256 ENSbalanceBefore;
-    uint256 expectedENStransfer = 15_000 ether;
+    uint256 expectedENStransfer = 15_000 * 10 ** 18; // ENS decimals
     uint256 ENSbalanceAfter;
 
     address receiver = 0x91c32893216dE3eA0a55ABb9851f581d4503d39b;
-
-    IERC20 USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
-    IERC20 ENS = IERC20(0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72);
 
     function _selectFork() public override {
         vm.createSelectFork({ blockNumber: 21_089_400, urlOrAlias: "mainnet" });
