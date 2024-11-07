@@ -35,7 +35,7 @@ abstract contract UNI_Governance is Test, IDAO {
     uint256 public quorumVotes;
 
     address public proposer;
-    address public voter;
+    address[] public voters;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -54,13 +54,15 @@ abstract contract UNI_Governance is Test, IDAO {
         timelock = ITimelock(payable(0x1a9C8182C09F50C8318d769245beA52c32BE35BC));
 
         proposer = _proposer();
-        voter = _voter();
+        voters = _voters();
     }
 
     // Executing each step necessary on the proposal lifecycle to understand parameters
     function test_proposal() public {
-        vm.prank(voter);
-        uniToken.delegate(voter);
+        for (uint256 i = 0; i < voters.length; i++) {
+            vm.prank(voters[i]);
+            uniToken.delegate(voters[i]);
+        }
 
         vm.roll(block.number + 1);
 
@@ -81,8 +83,10 @@ abstract contract UNI_Governance is Test, IDAO {
 
         vm.roll(block.number + votingDelay + 1);
 
-        vm.prank(voter);
-        governor.castVote(proposalId, 1);
+        for (uint256 i = 0; i < voters.length; i++) {
+            vm.prank(voters[i]);
+            governor.castVote(proposalId, 1);
+        }
 
         vm.roll(block.number + votingPeriod);
 
@@ -100,22 +104,21 @@ abstract contract UNI_Governance is Test, IDAO {
     }
 
     function _proposer() public view virtual returns (address) {
-        return 0x1a9C8182C09F50C8318d769245beA52c32BE35BC;
+        return 0x8E4ED221fa034245F14205f781E0b13C5bd6a42E;
     }
 
-    function _voters() public view virtual returns (address[] memory) {
-        return [
-            0x8E4ED221fa034245F14205f781E0b13C5bd6a42E,
-            0x53689948444CfD03d2Ad77266b05e61B8Eed3132,
-            0xe7925D190aea9279400cD9a005E33CEB9389Cc2b, // jessewldn
-            0x1d8F369F05343F5A642a78BD65fF0da136016452,
-            0xe02457a1459b6C49469Bf658d4Fe345C636326bF,
-            0x88E15721936c6eBA757A27E54e7aE84b1EA34c05,
-            0x8962285fAac45a7CBc75380c484523Bb7c32d429, // Consensys
-            0xcb70D1b61919daE81f5Ca620F1e5d37B2241e638,
-            0x88FB3D509fC49B515BFEb04e23f53ba339563981, // Robert Leshner
-            0x683a4F9915D6216f73d6Df50151725036bD26C02  // Gauntlet
-        ];
+    function _voters() public view virtual returns (address[] memory votersArray) {
+        votersArray = new address[](10);
+        votersArray[0] = 0x8E4ED221fa034245F14205f781E0b13C5bd6a42E;
+        votersArray[1] = 0x53689948444CfD03d2Ad77266b05e61B8Eed3132;
+        votersArray[2] = 0xe7925D190aea9279400cD9a005E33CEB9389Cc2b; // jessewldn
+        votersArray[3] = 0x1d8F369F05343F5A642a78BD65fF0da136016452;
+        votersArray[4] = 0xe02457a1459b6C49469Bf658d4Fe345C636326bF;
+        votersArray[5] = 0x88E15721936c6eBA757A27E54e7aE84b1EA34c05;
+        votersArray[6] = 0x8962285fAac45a7CBc75380c484523Bb7c32d429; // Consensys
+        votersArray[7] = 0xcb70D1b61919daE81f5Ca620F1e5d37B2241e638;
+        votersArray[8] = 0x88FB3D509fC49B515BFEb04e23f53ba339563981; // Robert Leshner
+        votersArray[9] = 0x683a4F9915D6216f73d6Df50151725036bD26C02; // Gauntlet
     }
 
     function _beforePropose() public virtual;
