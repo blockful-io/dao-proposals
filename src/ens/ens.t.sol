@@ -126,8 +126,19 @@ abstract contract ENS_Governance is Test, IDAO {
 
     function _proposer() public view virtual returns (address);
 
-    function _voter() public view virtual returns (address) {
-        return 0xd7A029Db2585553978190dB5E85eC724Aa4dF23f;
+    function _voters() public view virtual returns (address[] memory) {
+        return [
+            0x5BFCB4BE4d7B43437d5A0c57E908c048a4418390, // fireeyesdao.eth
+            0x81b287c0992B110ADEB5903Bf7E2d9350C80581a, // coinbase
+            0x2B888954421b424C5D3D9Ce9bB67c9bD47537d12, // lefteris.eth
+            0x89EdE5cBE53473A64d6C8DF14176a0d658dAAeDC, // scratch.ricmoo.eth
+            0xe52C39327FF7576bAEc3DBFeF0787bd62dB6d726, // 5pence.eth
+            0x839395e20bbB182fa440d08F850E6c7A8f6F0780, // griff.eth
+            0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5, // nick.eth
+            0x983110309620D911731Ac0932219af06091b6744, // brantly.eth
+            0x4e88F436422075C1417357bF957764c127B2CC93, // imtoken.eth
+            0x809FA673fe2ab515FaA168259cB14E2BeDeBF68e  // avsa.eth
+        ];
     }
 
     function _beforePropose() public virtual;

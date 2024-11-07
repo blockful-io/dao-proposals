@@ -103,8 +103,19 @@ abstract contract UNI_Governance is Test, IDAO {
         return 0x1a9C8182C09F50C8318d769245beA52c32BE35BC;
     }
 
-    function _voter() public view virtual returns (address) {
-        return 0x1a9C8182C09F50C8318d769245beA52c32BE35BC;
+    function _voters() public view virtual returns (address[] memory) {
+        return [
+            0x8E4ED221fa034245F14205f781E0b13C5bd6a42E,
+            0x53689948444CfD03d2Ad77266b05e61B8Eed3132,
+            0xe7925D190aea9279400cD9a005E33CEB9389Cc2b, // jessewldn
+            0x1d8F369F05343F5A642a78BD65fF0da136016452,
+            0xe02457a1459b6C49469Bf658d4Fe345C636326bF,
+            0x88E15721936c6eBA757A27E54e7aE84b1EA34c05,
+            0x8962285fAac45a7CBc75380c484523Bb7c32d429, // Consensys
+            0xcb70D1b61919daE81f5Ca620F1e5d37B2241e638,
+            0x88FB3D509fC49B515BFEb04e23f53ba339563981, // Robert Leshner
+            0x683a4F9915D6216f73d6Df50151725036bD26C02  // Gauntlet
+        ];
     }
 
     function _beforePropose() public virtual;
