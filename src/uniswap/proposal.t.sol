@@ -14,7 +14,7 @@ contract Proposal_UNI_Test is UNI_Governance {
         vm.createSelectFork({ blockNumber: 20_836_390, urlOrAlias: "mainnet" });
     }
 
-    function _beforePropose() public override {
+    function _beforeExecution() public override {
         initialBalance = uniToken.balanceOf(recipient);
     }
 

@@ -32,7 +32,7 @@ contract Proposal_ENS_EP_5_25_Test is ENS_Governance {
         return 0xe52C39327FF7576bAEc3DBFeF0787bd62dB6d726;
     }
 
-    function _beforePropose() public override {
+    function _beforeExecution() public override {
         USDCbalanceBefore = USDC.balanceOf(address(timelock));
     }
 

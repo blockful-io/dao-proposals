@@ -23,7 +23,6 @@ contract Proposal_ENS_EP_5_22_Test is ENS_Governance {
     address receiver = 0x690F0581eCecCf8389c223170778cD9D029606F2; // ENS Labs
 
     ITokenStreamingEP5_22 streamingContract = ITokenStreamingEP5_22(0x05C8f60e24FcDd9B8Ed7bB85dF8164C41cB4DA16); // stream
-        // contract
     IERC20 USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
 
     function _selectFork() public override {
@@ -34,7 +33,7 @@ contract Proposal_ENS_EP_5_22_Test is ENS_Governance {
         return 0xE3919F3f971C4589089DaA930aaFa81B8A27b406;
     }
 
-    function _beforePropose() public override {
+    function _beforeExecution() public override {
         timelockUSDCbalanceBefore = USDC.balanceOf(address(timelock));
     }
 
@@ -66,7 +65,7 @@ contract Proposal_ENS_EP_5_22_Test is ENS_Governance {
 
         assertEq(calldatas[0], expectedCalldata);
 
-        return (targets, values, signatures, calldatas, "");
+        return (targets, values, signatures, calldatas, description);
     }
 
     function _afterExecution() public override {
@@ -75,12 +74,14 @@ contract Proposal_ENS_EP_5_22_Test is ENS_Governance {
 
         vm.warp(streamingContract.startTime() + 1 days);
 
-        console2.log("Claimable balance", streamingContract.claimableBalance());
-        console2.log("Total claimed", streamingContract.totalClaimed());
+        console2.log("Claimable balance before claim", streamingContract.claimableBalance());
 
         vm.startPrank(streamingContractAdmin);
         streamingContract.claim(receiver, streamingContract.claimableBalance());
         vm.stopPrank();
+
+        console2.log("Claimable balance after claim", streamingContract.claimableBalance());
+        console2.log("Total claimed", streamingContract.totalClaimed());
 
         timelockUSDCbalanceAfter = USDC.balanceOf(address(timelock));
         assertEq(timelockUSDCbalanceBefore, timelockUSDCbalanceAfter + expectedUSDCtransfer);

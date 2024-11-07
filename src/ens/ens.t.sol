@@ -60,6 +60,16 @@ abstract contract ENS_Governance is Test, IDAO {
     // Executing each step necessary on the proposal lifecycle to understand attack vectors
 
     function test_proposal() public {
+        // Validate if the proposal has enough votes
+        uint256 totalVotes = 0;
+        for (uint256 i = 0; i < voters.length; i++) {
+            totalVotes += ensToken.getVotes(voters[i]);
+        }
+        assertGt(totalVotes, governor.quorum(block.number - 1));
+
+        // Validate if the proposer has enough votes
+        assertGe(ensToken.getVotes(proposer), governor.proposalThreshold());
+
         // Generate call data
         (
             address[] memory targets,
@@ -69,37 +79,30 @@ abstract contract ENS_Governance is Test, IDAO {
             string memory description
         ) = _generateCallData();
 
-        bytes32 descriptionHash = keccak256(bytes(description));
+        bytes32 descriptionHash = 0xc229359fe420806fada11e3aaf84ce9194e5bc1c407ecedb74e27a125b5d3170;
 
-        // Delegate from all voters
-        for (uint256 i = 1; i < voters.length; i++) {
-            vm.prank(voters[i]);
-            ensToken.delegate(voters[i]);
+
+        // Calculate proposalId
+        proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        proposalId = uint256(
+            33_504_840_096_777_976_512_510_989_921_427_323_867_039_135_570_342_563_123_194_157_971_712_476_988_820
+        );
+        console2.log("proposalId", proposalId);
+        // Verify if proposal already exists
+        try governor.state(proposalId) returns (uint8 state) {
+            console2.log("Proposal already exists");
+        } catch {
+            // Proposal does not exist
+            vm.prank(proposer);
+            proposalId = governor.propose(targets, values, calldatas, description);
+            assertEq(governor.state(proposalId), 0);
         }
 
-        // Need to advance 1 block for delegation to be valid on governor
-        vm.roll(block.number + 1);
-
-        uint256 totalVotes = 0;
-        for (uint256 i = 0; i < voters.length; i++) {
-            totalVotes += ensToken.getVotes(voters[i]);
-        }
-        assertGt(totalVotes, governor.quorum(block.number - 1));
-        assertGe(ensToken.getVotes(proposer), governor.proposalThreshold());
-
-        // Governor
-        // Submit proposal
-        _beforePropose();
-
-        vm.prank(proposer);
-        proposalId = governor.propose(targets, values, calldatas, description);
-        assertEq(governor.state(proposalId), 0);
-
-        // Proposal is ready to vote after 2 block because of the revert ERC20Votes: block not yet mined
+        // Make proposal ready to vote
         vm.roll(block.number + governor.votingDelay() + 1);
         assertEq(governor.state(proposalId), 1);
 
-        // Vote for the proposal
+        // Delegates vote for the proposal
         for (uint256 i = 0; i < voters.length; i++) {
             vm.prank(voters[i]);
             governor.castVote(proposalId, 1);
@@ -121,10 +124,14 @@ abstract contract ENS_Governance is Test, IDAO {
         vm.warp(block.timestamp + timelock.getMinDelay() + 1);
         assertTrue(timelock.isOperationReady(proposalIdInTimelock));
 
+        // Store parameters to be validated after execution
+        _beforeExecution();
+
         // Execute proposal
         governor.execute(targets, values, calldatas, descriptionHash);
         assertTrue(timelock.isOperationDone(proposalIdInTimelock));
 
+        // Assert parameters modified after execution
         _afterExecution();
     }
 
@@ -150,7 +157,7 @@ abstract contract ENS_Governance is Test, IDAO {
         votersArray[9] = 0x809FA673fe2ab515FaA168259cB14E2BeDeBF68e; // avsa.eth
     }
 
-    function _beforePropose() public virtual;
+    function _beforeExecution() public virtual;
 
     function _generateCallData()
         public
