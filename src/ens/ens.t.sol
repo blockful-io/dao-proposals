@@ -79,8 +79,7 @@ abstract contract ENS_Governance is Test, IDAO {
             string memory description
         ) = _generateCallData();
 
-        bytes32 descriptionHash = 0xc229359fe420806fada11e3aaf84ce9194e5bc1c407ecedb74e27a125b5d3170;
-
+        bytes32 descriptionHash = keccak256(bytes(description));
 
         // Calculate proposalId
         proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
