@@ -22,7 +22,7 @@ abstract contract ENS_Governance is Test, IDAO {
         Executed
     }
     /*//////////////////////////////////////////////////////////////////////////
-                                     VARIABLES
+                                GOVERNANCE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
@@ -30,7 +30,19 @@ abstract contract ENS_Governance is Test, IDAO {
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     address public proposer;
     address[] public voters;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PROPOSAL VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
     uint256 public proposalId;
+    address[] public targets;
+    uint256[] public values;
+    string[] public signatures;
+    bytes[] public calldatas;
+    string public description;
+    bytes32 public descriptionHash;
+
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -57,8 +69,8 @@ abstract contract ENS_Governance is Test, IDAO {
         vm.label(address(timelock), "timelock");
         vm.label(address(ensToken), "ensToken");
     }
-    // Executing each step necessary on the proposal lifecycle to understand attack vectors
 
+    // Executing each step necessary on the proposal lifecycle
     function test_proposal() public {
         // Validate if the proposal has enough votes
         uint256 totalVotes = 0;
@@ -71,27 +83,16 @@ abstract contract ENS_Governance is Test, IDAO {
         assertGe(ensToken.getVotes(proposer), governor.proposalThreshold());
 
         // Generate call data
-        (
-            address[] memory targets,
-            uint256[] memory values,
-            string[] memory signatures,
-            bytes[] memory calldatas,
-            string memory description
-        ) = _generateCallData();
+        (targets, values, signatures, calldatas, description) = _generateCallData();
 
-        bytes32 descriptionHash = keccak256(bytes(description));
+        // Hash the description
+        descriptionHash = keccak256(bytes(description));
 
         // Calculate proposalId
         proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
-        proposalId = uint256(
-            33_504_840_096_777_976_512_510_989_921_427_323_867_039_135_570_342_563_123_194_157_971_712_476_988_820
-        );
-        console2.log("proposalId", proposalId);
-        // Verify if proposal already exists
-        try governor.state(proposalId) returns (uint8 state) {
-            console2.log("Proposal already exists");
-        } catch {
-            // Proposal does not exist
+
+        if (!_isProposalSubmitted()) {
+            // Proposal does not exists onchain, so we need to propose it
             vm.prank(proposer);
             proposalId = governor.propose(targets, values, calldatas, description);
             assertEq(governor.state(proposalId), 0);
@@ -170,4 +171,6 @@ abstract contract ENS_Governance is Test, IDAO {
         );
 
     function _afterExecution() public virtual;
+
+    function _isProposalSubmitted() public view virtual returns (bool);
 }

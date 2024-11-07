@@ -89,4 +89,8 @@ contract Proposal_ENS_EP_5_25_Test is ENS_Governance {
         );
         assertNotEq(USDCbalanceAfter, USDCbalanceBefore);
     }
+
+    function _isProposalSubmitted() public view override returns (bool) {
+        return false;
+    }
 }

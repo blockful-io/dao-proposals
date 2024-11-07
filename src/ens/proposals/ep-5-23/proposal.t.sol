@@ -85,4 +85,8 @@ contract Proposal_ENS_EP_5_23_Test is ENS_Governance {
         assertEq(ENSbalanceBefore, ENSbalanceAfter + expectedENStransfer);
         assertNotEq(ENSbalanceAfter, ENSbalanceBefore);
     }
+
+    function _isProposalSubmitted() public view override returns (bool) {
+        return true;
+    }
 }

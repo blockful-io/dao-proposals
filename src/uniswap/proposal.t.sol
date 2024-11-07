@@ -47,4 +47,8 @@ contract Proposal_UNI_Test is UNI_Governance {
         finalBalance = uniToken.balanceOf(recipient);
         assertEq(finalBalance, initialBalance + amount);
     }
+
+    function _isProposalSubmitted() public view override returns (bool) {
+        return false;
+    }
 }

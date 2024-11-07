@@ -5,6 +5,7 @@ interface IDAO {
     function _voters() external view returns (address[] memory);
     function _beforeExecution() external;
     function _afterExecution() external;
+    function _isProposalSubmitted() external view returns (bool);
     function _generateCallData()
         external
         returns (

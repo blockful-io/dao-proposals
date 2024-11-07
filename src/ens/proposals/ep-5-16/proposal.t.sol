@@ -66,4 +66,8 @@ contract Proposal_ENS_EP_5_16_Test is ENS_Governance {
         assertEq(USDCbalanceBefore, USDCbalanceAfter + expectedUSDCtransfer);
         assertNotEq(USDCbalanceAfter, USDCbalanceBefore);
     }
+
+    function _isProposalSubmitted() public view override returns (bool) {
+        return true;
+    }
 }

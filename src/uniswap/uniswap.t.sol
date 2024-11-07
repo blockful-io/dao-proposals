@@ -130,4 +130,6 @@ abstract contract UNI_Governance is Test, IDAO {
         );
 
     function _afterExecution() public virtual;
+
+    function _isProposalSubmitted() public view virtual returns (bool);
 }
