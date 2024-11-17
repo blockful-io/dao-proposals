@@ -22,7 +22,7 @@ abstract contract ENS_Governance is Test, IDAO {
         Executed
     }
     /*//////////////////////////////////////////////////////////////////////////
-                                     VARIABLES
+                                GOVERNANCE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
@@ -30,7 +30,19 @@ abstract contract ENS_Governance is Test, IDAO {
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     address public proposer;
     address[] public voters;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PROPOSAL VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
     uint256 public proposalId;
+    address[] public targets;
+    uint256[] public values;
+    string[] public signatures;
+    bytes[] public calldatas;
+    string public description;
+    bytes32 public descriptionHash;
+
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -57,49 +69,40 @@ abstract contract ENS_Governance is Test, IDAO {
         vm.label(address(timelock), "timelock");
         vm.label(address(ensToken), "ensToken");
     }
-    // Executing each step necessary on the proposal lifecycle to understand attack vectors
 
+    // Executing each step necessary on the proposal lifecycle
     function test_proposal() public {
-        // Generate call data
-        (
-            address[] memory targets,
-            uint256[] memory values,
-            string[] memory signatures,
-            bytes[] memory calldatas,
-            string memory description
-        ) = _generateCallData();
-
-        bytes32 descriptionHash = keccak256(bytes(description));
-
-        // Delegate from all voters
-        for (uint256 i = 1; i < voters.length; i++) {
-            vm.prank(voters[i]);
-            ensToken.delegate(voters[i]);
-        }
-
-        // Need to advance 1 block for delegation to be valid on governor
-        vm.roll(block.number + 1);
-
+        // Validate if the proposal has enough votes
         uint256 totalVotes = 0;
         for (uint256 i = 0; i < voters.length; i++) {
             totalVotes += ensToken.getVotes(voters[i]);
         }
         assertGt(totalVotes, governor.quorum(block.number - 1));
+
+        // Validate if the proposer has enough votes
         assertGe(ensToken.getVotes(proposer), governor.proposalThreshold());
 
-        // Governor
-        // Submit proposal
-        _beforePropose();
+        // Generate call data
+        (targets, values, signatures, calldatas, description) = _generateCallData();
 
-        vm.prank(proposer);
-        proposalId = governor.propose(targets, values, calldatas, description);
-        assertEq(governor.state(proposalId), 0);
+        // Hash the description
+        descriptionHash = keccak256(bytes(description));
 
-        // Proposal is ready to vote after 2 block because of the revert ERC20Votes: block not yet mined
+        // Calculate proposalId
+        proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+
+        if (!_isProposalSubmitted()) {
+            // Proposal does not exists onchain, so we need to propose it
+            vm.prank(proposer);
+            proposalId = governor.propose(targets, values, calldatas, description);
+            assertEq(governor.state(proposalId), 0);
+        }
+
+        // Make proposal ready to vote
         vm.roll(block.number + governor.votingDelay() + 1);
         assertEq(governor.state(proposalId), 1);
 
-        // Vote for the proposal
+        // Delegates vote for the proposal
         for (uint256 i = 0; i < voters.length; i++) {
             vm.prank(voters[i]);
             governor.castVote(proposalId, 1);
@@ -121,10 +124,14 @@ abstract contract ENS_Governance is Test, IDAO {
         vm.warp(block.timestamp + timelock.getMinDelay() + 1);
         assertTrue(timelock.isOperationReady(proposalIdInTimelock));
 
+        // Store parameters to be validated after execution
+        _beforeExecution();
+
         // Execute proposal
         governor.execute(targets, values, calldatas, descriptionHash);
         assertTrue(timelock.isOperationDone(proposalIdInTimelock));
 
+        // Assert parameters modified after execution
         _afterExecution();
     }
 
@@ -150,7 +157,7 @@ abstract contract ENS_Governance is Test, IDAO {
         votersArray[9] = 0x809FA673fe2ab515FaA168259cB14E2BeDeBF68e; // avsa.eth
     }
 
-    function _beforePropose() public virtual;
+    function _beforeExecution() public virtual;
 
     function _generateCallData()
         public
@@ -164,4 +171,6 @@ abstract contract ENS_Governance is Test, IDAO {
         );
 
     function _afterExecution() public virtual;
+
+    function _isProposalSubmitted() public view virtual returns (bool);
 }

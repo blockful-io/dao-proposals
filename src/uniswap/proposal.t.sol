@@ -14,7 +14,7 @@ contract Proposal_UNI_Test is UNI_Governance {
         vm.createSelectFork({ blockNumber: 20_836_390, urlOrAlias: "mainnet" });
     }
 
-    function _beforePropose() public override {
+    function _beforeExecution() public override {
         initialBalance = uniToken.balanceOf(recipient);
     }
 
@@ -46,5 +46,9 @@ contract Proposal_UNI_Test is UNI_Governance {
     function _afterExecution() public override {
         finalBalance = uniToken.balanceOf(recipient);
         assertEq(finalBalance, initialBalance + amount);
+    }
+
+    function _isProposalSubmitted() public view override returns (bool) {
+        return false;
     }
 }

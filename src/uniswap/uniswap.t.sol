@@ -59,11 +59,6 @@ abstract contract UNI_Governance is Test, IDAO {
 
     // Executing each step necessary on the proposal lifecycle to understand parameters
     function test_proposal() public {
-        for (uint256 i = 0; i < voters.length; i++) {
-            vm.prank(voters[i]);
-            uniToken.delegate(voters[i]);
-        }
-
         vm.roll(block.number + 1);
 
         (
@@ -74,7 +69,7 @@ abstract contract UNI_Governance is Test, IDAO {
             string memory description
         ) = _generateCallData();
 
-        _beforePropose();
+        _beforeExecution();
 
         vm.prank(proposer);
         uint256 proposalId = governor.propose(targets, values, signatures, calldatas, description);
@@ -121,7 +116,7 @@ abstract contract UNI_Governance is Test, IDAO {
         votersArray[9] = 0x683a4F9915D6216f73d6Df50151725036bD26C02; // Gauntlet
     }
 
-    function _beforePropose() public virtual;
+    function _beforeExecution() public virtual;
 
     function _generateCallData()
         public
@@ -135,4 +130,6 @@ abstract contract UNI_Governance is Test, IDAO {
         );
 
     function _afterExecution() public virtual;
+
+    function _isProposalSubmitted() public view virtual returns (bool);
 }
