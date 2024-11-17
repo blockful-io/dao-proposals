@@ -40,11 +40,11 @@ contract Proposal_ENS_EP_5_25_Test is ENS_Governance {
         public
         override
         returns (
-            address[] memory targets,
-            uint256[] memory values,
-            string[] memory signatures,
-            bytes[] memory calldatas,
-            string memory description
+            address[] memory,
+            uint256[] memory,
+            string[] memory,
+            bytes[] memory,
+            string memory
         )
     {
         uint256 items = 3;

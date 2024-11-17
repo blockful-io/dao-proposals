@@ -55,23 +55,18 @@ contract Proposal_ENS_EP_5_22_Test is ENS_Governance {
         (targets, values, calldatas, description) =
             abi.decode(proposalCalldata, (address[], uint256[], bytes[], string));
 
-        uint256 items = 1;
+        bytes[] memory internalCalldatas = new bytes[](1);
+        internalCalldatas[0] = abi.encodeWithSelector(USDC.approve.selector, address(streamingContract), type(uint256).max);
+        
+        bytes memory expectedCalldata = abi.encode(
+            targets,
+            values,
+            internalCalldatas,
+            description
+        );
 
-        targets = new address[](items);
-        targets[0] = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
-
-        values = new uint256[](items);
-        values[0] = 0;
-
-        calldatas = new bytes[](items);
-        calldatas[0] =
-            hex"095ea7b300000000000000000000000005c8f60e24fcdd9b8ed7bb85df8164c41cb4da16ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-
-        bytes memory expectedCalldata0 =
-            abi.encodeWithSelector(USDC.approve.selector, address(streamingContract), type(uint256).max);
-
-        // @TODO: Compare proposal calldata with expected calldata
-        assertEq(calldatas[0], expectedCalldata0);
+        assertEq(calldatas, internalCalldatas);
+        assertEq(proposalCalldata, expectedCalldata);
 
         return (targets, values, signatures, calldatas, description);
     }
