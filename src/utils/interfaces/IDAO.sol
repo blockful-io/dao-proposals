@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
 interface IDAO {
     function test_proposal() external;
     function _selectFork() external;
