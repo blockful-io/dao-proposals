@@ -9,6 +9,7 @@ import { IUSDC } from "@contracts/utils/interfaces/IUSDC.sol";
 import { SuperToken } from "@contracts/utils/interfaces/IUSDCx.sol";
 import { ISuperfluid } from "@contracts/utils/interfaces/ISuperfluid.sol";
 import { BatchPlanner } from "@ens/interfaces/IHedgey.sol";
+import { VotingTokenVestingPlans } from "@ens/interfaces/IHedgey.sol";
 
 import { ENS_Governance } from "@ens/ens.t.sol";
 
@@ -17,6 +18,7 @@ contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
     IERC20 ENS = IERC20(0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72);
     IERC20 USDCx = IERC20(0x1BA8603DA702602A8657980e825A6DAa03Dee93a);
     ISuperfluid superFluid = ISuperfluid(0xcfA132E353cB4E398080B9700609bb008eceB125);
+    VotingTokenVestingPlans vestingLocker = VotingTokenVestingPlans(0x1bb64AF7FE05fc69c740609267d2AbE3e119Ef82);
 
     uint256 expectedUSDCtransfer = 1_200_000 * (10 ** 18);
     int96 USDCFlowRateBefore;
@@ -24,7 +26,6 @@ contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
 
     uint256 ENSbalanceBefore;
     uint256 expectedENStransfer = 24_000 * (10 ** 18);
-    uint256 ENSbalanceAfter;
 
     address receiver = 0x64Ca550F78d6Cc711B247319CC71A04A166707Ab;
 
@@ -40,8 +41,8 @@ contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
     }
 
     function _beforeExecution() public override {
-        USDCFlowRateBefore = superFluid.getAccountFlowrate(address(USDCx), address(receiver));
-        ENSbalanceBefore = ENS.balanceOf(address(timelock));
+        USDCFlowRateBefore = superFluid.getAccountFlowrate(address(USDCx), receiver);
+        ENSbalanceBefore = ENS.balanceOf(receiver);
     }
 
     function _generateCallData()
@@ -74,12 +75,16 @@ contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
         BatchPlanner vesting = BatchPlanner(0x3466EB008EDD8d5052446293D1a7D212cb65C646);
 
         BatchPlanner.Plan[] memory plans = new BatchPlanner.Plan[](1);
-        plans[0] = BatchPlanner.Plan(receiver, expectedENStransfer, 1_735_065_935, 1_766_601_935, 380_517_503_805_175);
+
+        uint256 vestingStart = 1_735_065_935; // 2024-12-24
+        uint256 cliff = 1_766_601_935; // 2025-12-24
+        uint256 rate = 380_517_503_805_175; // 0,0003805175038 ENS/s
+        plans[0] = BatchPlanner.Plan(receiver, expectedENStransfer, vestingStart, cliff, rate);
 
         internalCalldatas[4] = abi.encodeWithSelector(ENS.approve.selector, address(vesting), expectedENStransfer);
         internalCalldatas[5] = abi.encodeWithSelector(
             BatchPlanner.batchVestingPlans.selector,
-            0x1bb64AF7FE05fc69c740609267d2AbE3e119Ef82,
+            vestingLocker,
             address(ENS),
             expectedENStransfer,
             plans,
@@ -100,12 +105,19 @@ contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
     }
 
     function _afterExecution() public override {
-        int96 USDCFlowRateAfter = superFluid.getAccountFlowrate(address(USDCx), address(receiver));
+        int96 USDCFlowRateAfter = superFluid.getAccountFlowrate(address(USDCx), receiver);
         assertEq(USDCFlowRateAfter - USDCFlowRateBefore, expectedUSDCFlowRate);
 
-        ENSbalanceAfter = ENS.balanceOf(address(timelock));
-        assertEq(ENSbalanceBefore, ENSbalanceAfter + expectedENStransfer);
-        assertNotEq(ENSbalanceAfter, ENSbalanceBefore);
+        // Before cliff
+        assertEq(ENSbalanceBefore, ENS.balanceOf(receiver));
+
+        // 1 year cliff
+        vm.warp(365 days);
+        assertEq(ENSbalanceBefore, ENS.balanceOf(receiver));
+
+        // 1 year vesting
+        vm.warp(365 days);
+        assertEq(vestingLocker.lockedBalances(receiver, address(ENS)), expectedENStransfer);
     }
 
     function _isProposalSubmitted() public view override returns (bool) {
