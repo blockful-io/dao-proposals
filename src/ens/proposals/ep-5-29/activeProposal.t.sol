@@ -15,12 +15,12 @@ import { ENS_Governance } from "@ens/ens.t.sol";
 contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
     IERC20 USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     IERC20 ENS = IERC20(0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72);
+    IERC20 USDCx = IERC20(0x1BA8603DA702602A8657980e825A6DAa03Dee93a);
+    ISuperfluid superFluid = ISuperfluid(0xcfA132E353cB4E398080B9700609bb008eceB125);
 
-    BatchPlanner vesting = BatchPlanner(0x3466EB008EDD8d5052446293D1a7D212cb65C646);
-
-    uint256 USDCbalanceBefore;
-    uint256 expectedUSDCtransfer = 1_200_000 * (10 ** 6);
-    uint256 USDCbalanceAfter;
+    uint256 expectedUSDCtransfer = 1_200_000 * (10 ** 18);
+    int96 USDCFlowRateBefore;
+    int256 expectedUSDCFlowRate = 38_026_517_538_495_352; // 0,038/s
 
     uint256 ENSbalanceBefore;
     uint256 expectedENStransfer = 24_000 * (10 ** 18);
@@ -40,7 +40,7 @@ contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
     }
 
     function _beforeExecution() public override {
-        USDCbalanceBefore = USDC.balanceOf(address(timelock));
+        USDCFlowRateBefore = superFluid.getAccountFlowrate(address(USDCx), address(receiver));
         ENSbalanceBefore = ENS.balanceOf(address(timelock));
     }
 
@@ -52,28 +52,29 @@ contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
         (targets, values, calldatas, description) =
             abi.decode(proposalCalldata, (address[], uint256[], bytes[], string));
 
-        uint256 secondsInYear = 31_536_000;
+        uint256 secondsInYear = 31_556_926;
 
         // USDC transferring
 
-        IERC20 usdcx = IERC20(0x1BA8603DA702602A8657980e825A6DAa03Dee93a);
-        uint256 USDCInitialAllowance = 100_000 * 10 ** 6;
-        uint256 USDCAmountPerSecond = (expectedUSDCtransfer / secondsInYear) * 10 ** 6;
-        console2.log("USDCAmountPerSecond", USDCAmountPerSecond);
+        uint256 USDCInitialAllowance = 100_000 * 10 ** 6; // USDC decimals
+        uint256 USDCAmountPerSecond = expectedUSDCtransfer / secondsInYear;
 
         bytes[] memory internalCalldatas = new bytes[](6);
 
-        internalCalldatas[0] = abi.encodeWithSelector(IUSDC.approve.selector, address(usdcx), USDCInitialAllowance);
+        internalCalldatas[0] = abi.encodeWithSelector(IUSDC.approve.selector, address(USDCx), USDCInitialAllowance);
         internalCalldatas[1] = abi.encodeWithSelector(SuperToken.upgrade.selector, USDCInitialAllowance);
         internalCalldatas[2] =
-            abi.encodeWithSelector(ISuperfluid.setFlowrate.selector, address(usdcx), receiver, USDCAmountPerSecond);
+            abi.encodeWithSelector(ISuperfluid.setFlowrate.selector, address(USDCx), receiver, USDCAmountPerSecond);
         internalCalldatas[3] = abi.encodeWithSelector(
-            IUSDC.increaseAllowance.selector,
-            0x1D65c6d3AD39d454Ea8F682c49aE7744706eA96d,
-            expectedUSDCtransfer - USDCInitialAllowance
+            IUSDC.increaseAllowance.selector, 0x1D65c6d3AD39d454Ea8F682c49aE7744706eA96d, 1_100_000 * 10 ** 6
         );
 
         // ENS transferring
+
+        BatchPlanner vesting = BatchPlanner(0x3466EB008EDD8d5052446293D1a7D212cb65C646);
+
+        BatchPlanner.Plan[] memory plans = new BatchPlanner.Plan[](1);
+        plans[0] = BatchPlanner.Plan(receiver, expectedENStransfer, 1_735_065_935, 1_766_601_935, 380_517_503_805_175);
 
         internalCalldatas[4] = abi.encodeWithSelector(ENS.approve.selector, address(vesting), expectedENStransfer);
         internalCalldatas[5] = abi.encodeWithSelector(
@@ -81,27 +82,26 @@ contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
             0x1bb64AF7FE05fc69c740609267d2AbE3e119Ef82,
             address(ENS),
             expectedENStransfer,
-            [(receiver, expectedENStransfer, 1_735_065_935, 1_766_601_935, 380_517_503_805_175)],
+            plans,
             1,
             0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7,
             true,
             4
         );
 
-        bytes memory expectedCalldata = abi.encode(targets, values, internalCalldatas, description);
-
-        for (uint256 i = 0; i < internalCalldatas.length; i++) {
+        for (uint256 i = 0; i < 6; i++) {
             assertEq(calldatas[i], internalCalldatas[i]);
         }
+
+        bytes memory expectedCalldata = abi.encode(targets, values, internalCalldatas, description);
         assertEq(proposalCalldata, expectedCalldata);
 
         return (targets, values, signatures, calldatas, description);
     }
 
     function _afterExecution() public override {
-        USDCbalanceAfter = USDC.balanceOf(address(timelock));
-        assertEq(USDCbalanceBefore, USDCbalanceAfter + expectedUSDCtransfer);
-        assertNotEq(USDCbalanceAfter, USDCbalanceBefore);
+        int96 USDCFlowRateAfter = superFluid.getAccountFlowrate(address(USDCx), address(receiver));
+        assertEq(USDCFlowRateAfter - USDCFlowRateBefore, expectedUSDCFlowRate);
 
         ENSbalanceAfter = ENS.balanceOf(address(timelock));
         assertEq(ENSbalanceBefore, ENSbalanceAfter + expectedENStransfer);
