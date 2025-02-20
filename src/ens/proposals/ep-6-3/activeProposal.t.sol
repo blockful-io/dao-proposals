@@ -20,6 +20,7 @@ interface AaveV3 {
 
 interface Balancer {
     function gaugeWithdraw(address gauge, address token, address to, uint256 amount) external;
+    function gaugeClaimRewards(address[] memory gauges) external;
 }
 
 interface IZodiacRoles {
@@ -136,6 +137,39 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 safe,
                 0
             ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 12
+        address[] memory arg = new address[](1);
+        arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+            0,
+            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+            0,
+            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+            0,
+            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
             IZodiacRoles.Operation.Call,
             MANAGER_ROLE,
             false
@@ -288,6 +322,36 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             abi.encodeWithSelector(
                 Balancer.gaugeWithdraw.selector, 0xc592c33e51A764B94DB0702D8BAf4035eD577aED, safe, safe, 1 ether
             ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 12
+        address[] memory arg = new address[](1);
+        arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
+        roles.execTransactionWithRole(
+            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+            0,
+            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
+        roles.execTransactionWithRole(
+            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+            0,
+            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
+        roles.execTransactionWithRole(
+            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+            0,
+            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
             IZodiacRoles.Operation.Call,
             MANAGER_ROLE,
             false
