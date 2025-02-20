@@ -15,6 +15,11 @@ import { ENS_Governance } from "@ens/ens.t.sol";
 interface AaveV3 {
     function depositETH(address pool, address onBehalfOf, uint16 referralCode) external payable;
     function withdrawETH(address pool, uint256 amount, address onBehalfOf) external;
+    function claimRewards(address[] memory assets, uint256 amount, address to, address rewardAddress) external;
+}
+
+interface Balancer {
+    function gaugeWithdraw(address gauge, address token, address to, uint256 amount) external;
 }
 
 interface IZodiacRoles {
@@ -35,15 +40,6 @@ interface IZodiacRoles {
     )
         external
         returns (bool success);
-
-    function execTransactionFromModule(
-        address to,
-        uint256 value,
-        bytes calldata data,
-        Operation operation
-    )
-        external
-        returns (bool success);
 }
 
 contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
@@ -51,12 +47,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
     address aave = 0x893411580e590D62dDBca8a703d61Cc4A8c7b2b9;
     address karpatkey = 0xb423e0f6E7430fa29500c5cC9bd83D28c8BD8978;
     IZodiacRoles roles = IZodiacRoles(0x703806E61847984346d2D7DDd853049627e50A40);
+    bytes32 constant MANAGER_ROLE = 0x4d414e4147455200000000000000000000000000000000000000000000000000;
 
     function _beforeExecution() public override {
         vm.startPrank(karpatkey);
 
-        // should pass
-
+        // 1
         roles.execTransactionWithRole(
             aave,
             0,
@@ -64,21 +60,245 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
             ),
             IZodiacRoles.Operation.Call,
-            0x4d414e4147455200000000000000000000000000000000000000000000000000,
+            MANAGER_ROLE,
             false
         );
 
-        // aave.withdrawETH(address(timelock), 1 ether, address(safe));
+        // 2
+        roles.execTransactionWithRole(
+            aave,
+            0,
+            abi.encodeWithSelector(
+                AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
 
-        // should revert
+        // 3, 4
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb,
+            0,
+            abi.encodeWithSelector(AaveV3.claimRewards.selector, new address[](0), 1 ether, safe, address(0)),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
 
-        // aave.claimRewards(address(0), 1 ether, address(safe), address(0));
+        // 5, 6
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xA434D495249abE33E031Fe71a969B81f3c07950D,
+            0,
+            abi.encodeWithSelector(
+                AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 7
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xA434D495249abE33E031Fe71a969B81f3c07950D,
+            0,
+            abi.encodeWithSelector(
+                AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 8, 9
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 10, 11
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+            0,
+            abi.encodeWithSelector(
+                Balancer.gaugeWithdraw.selector,
+                0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C,
+                0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE,
+                safe,
+                0
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        vm.stopPrank();
+    }
+
+    function _afterExecution() public override {
+        vm.startPrank(karpatkey);
+
+        // 1
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IZodiacRoles.ConditionViolation.selector,
+                3,
+                0x474cf53d00000000000000000000000000000000000000000000000000000000
+            )
+        );
+        roles.execTransactionWithRole(
+            aave,
+            0,
+            abi.encodeWithSelector(
+                AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 2
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IZodiacRoles.ConditionViolation.selector,
+                3,
+                0x80500d2000000000000000000000000000000000000000000000000000000000
+            )
+        );
+        roles.execTransactionWithRole(
+            aave,
+            0,
+            abi.encodeWithSelector(
+                AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 3, 4
+        roles.execTransactionWithRole(
+            0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb,
+            0,
+            abi.encodeWithSelector(AaveV3.claimRewards.selector, new address[](0), 1 ether, safe, address(0)),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 5, 6
+        roles.execTransactionWithRole(
+            0xA434D495249abE33E031Fe71a969B81f3c07950D,
+            0,
+            abi.encodeWithSelector(
+                AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 7
+        roles.execTransactionWithRole(
+            0xA434D495249abE33E031Fe71a969B81f3c07950D,
+            0,
+            abi.encodeWithSelector(
+                AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 8, 9
+        roles.execTransactionWithRole(
+            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0x0650CAF159C5A49f711e8169D4336ECB9b950275, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 10, 11
+        roles.execTransactionWithRole(
+            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+            0,
+            abi.encodeWithSelector(
+                Balancer.gaugeWithdraw.selector, 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C, safe, safe, 1 ether
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+            0,
+            abi.encodeWithSelector(
+                Balancer.gaugeWithdraw.selector, 0x79eF6103A513951a3b25743DB509E267685726B7, safe, safe, 1 ether
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+            0,
+            abi.encodeWithSelector(
+                Balancer.gaugeWithdraw.selector, 0xc592c33e51A764B94DB0702D8BAf4035eD577aED, safe, safe, 1 ether
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
 
         vm.stopPrank();
     }
 
     function _generateCallData()
         public
+        view
         override
         returns (address[] memory, uint256[] memory, string[] memory, bytes[] memory, string memory)
     {
@@ -101,32 +321,6 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         );
 
         return (targets, new uint256[](1), new string[](1), calldatas, "");
-    }
-
-    function _afterExecution() public override {
-        vm.startPrank(karpatkey);
-
-        // should revert
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector,
-                3,
-                0x474cf53d00000000000000000000000000000000000000000000000000000000
-            )
-        );
-        roles.execTransactionWithRole(
-            aave,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            0x4d414e4147455200000000000000000000000000000000000000000000000000,
-            false
-        );
-
-        vm.stopPrank();
     }
 
     function _isProposalSubmitted() public pure override returns (bool) {
