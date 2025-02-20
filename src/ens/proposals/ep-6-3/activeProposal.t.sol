@@ -29,6 +29,8 @@ interface Curve {
     function remove_liquidity(uint256, uint256[2] memory amounts) external;
     function remove_liquidity_one_coin(uint256 _token_amount, int128 i, uint256 min_amount) external;
     function exchange(int128, int128, uint256, uint256) external;
+    function claim_rewards() external;
+    function set_approve_deposit(address, bool) external;
 }
 
 interface Sky {
@@ -40,6 +42,9 @@ interface Sky {
     function downgradeUSDSToDAI(address, uint256) external;
     function stake(uint256, uint16) external;
     function withdraw(uint256) external;
+    function exit() external;
+    function getReward() external;
+    function supply(address, uint256) external;
 }
 
 interface Convex {
@@ -512,6 +517,149 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
+        // 43
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
+            0,
+            abi.encodeWithSelector(Sky.exit.selector),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 44
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
+            0,
+            abi.encodeWithSelector(Sky.getReward.selector),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 45
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
+            0,
+            abi.encodeWithSelector(Sky.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 46
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
+            0,
+            abi.encodeWithSelector(
+                bytes4(keccak256("withdraw(address,uint256)")), 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 47, 48
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xd03BE91b1932715709e18021734fcB91BB431715,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 49
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xd03BE91b1932715709e18021734fcB91BB431715,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 50
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xd03BE91b1932715709e18021734fcB91BB431715,
+            0,
+            abi.encodeWithSelector(Curve.claim_rewards.selector),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 51, 52
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 53
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 54
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+            0,
+            abi.encodeWithSelector(Curve.set_approve_deposit.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 55
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x83F20F44975D03b1b09e64809B757c47f942BEeA,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x83F20F44975D03b1b09e64809B757c47f942BEeA,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 56
+        vm.expectRevert(abi.encodeWithSelector(IZodiacRoles.ConditionViolation.selector, 2, bytes32(0)));
+        roles.execTransactionWithRole(
+            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("add_liquidity(uint256[],uint256)")), amounts, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
         vm.stopPrank();
     }
 
@@ -971,6 +1119,136 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             0x0650CAF159C5A49f711e8169D4336ECB9b950275,
             0,
             abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 43
+        roles.execTransactionWithRole(
+            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
+            0,
+            abi.encodeWithSelector(Sky.exit.selector),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 44
+        roles.execTransactionWithRole(
+            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
+            0,
+            abi.encodeWithSelector(Sky.getReward.selector),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 45
+        roles.execTransactionWithRole(
+            0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
+            0,
+            abi.encodeWithSelector(Sky.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 46
+        roles.execTransactionWithRole(
+            0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
+            0,
+            abi.encodeWithSelector(
+                bytes4(keccak256("withdraw(address,uint256)")), 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 47, 48
+        roles.execTransactionWithRole(
+            0xd03BE91b1932715709e18021734fcB91BB431715,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 49
+        roles.execTransactionWithRole(
+            0xd03BE91b1932715709e18021734fcB91BB431715,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 50
+        roles.execTransactionWithRole(
+            0xd03BE91b1932715709e18021734fcB91BB431715,
+            0,
+            abi.encodeWithSelector(Curve.claim_rewards.selector),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 51, 52
+        roles.execTransactionWithRole(
+            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 53
+        roles.execTransactionWithRole(
+            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 54
+        roles.execTransactionWithRole(
+            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+            0,
+            abi.encodeWithSelector(Curve.set_approve_deposit.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 55
+        roles.execTransactionWithRole(
+            0x83F20F44975D03b1b09e64809B757c47f942BEeA,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0x83F20F44975D03b1b09e64809B757c47f942BEeA,
+            0,
+            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 56
+        roles.execTransactionWithRole(
+            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+            0,
+            abi.encodeWithSelector(bytes4(keccak256("add_liquidity(uint256[],uint256)")), amounts, 1 ether),
             IZodiacRoles.Operation.Call,
             MANAGER_ROLE,
             false
