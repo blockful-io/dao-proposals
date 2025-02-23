@@ -52,6 +52,8 @@ interface Balancer {
     function gaugeMint(address[] memory gauges, uint256 amount) external;
     function setRelayerApproval(address sender, address relayer, bool approved) external;
     function swap(SingleSwap memory, FundManagement memory, uint256 limit, uint256 deadline) external;
+    function scopeFunction(address, bool) external;
+    function setMinterApproval(address, bool) external;
 }
 
 interface Curve {
@@ -84,6 +86,8 @@ interface Convex {
     function withdraw(uint256, bool) external;
     function withdrawAndUnwrap(uint256, bool) external;
     function getReward(address, bool) external;
+    function deposit(uint256 pid, uint256 amount, bool stake) external;
+    function depositAll(uint256, bool) external;
 }
 
 interface OETH {
@@ -164,7 +168,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
     function _beforeExecution() public override {
         vm.startPrank(karpatkey);
 
-        // 1
+        // 0
         roles.execTransactionWithRole(
             aave,
             0,
@@ -176,7 +180,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 2
+        // 1
         roles.execTransactionWithRole(
             aave,
             0,
@@ -188,7 +192,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 3, 4
+        // 2
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -203,7 +207,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 5, 6
+        // 3
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -220,7 +224,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 7
+        // 4
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -237,7 +241,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 8, 9
+        // 5
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -252,7 +256,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 10, 11
+        // 6
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -273,7 +277,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 12
+        // 7
         address[] memory arg = new address[](1);
         arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
         vm.expectRevert(
@@ -318,7 +322,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 13
+        // 8
         arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -362,7 +366,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 14, 15
+        // 9
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -390,7 +394,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 16
+        // 10
         uint256[] memory amounts = new uint256[](2);
         amounts[0] = 1 ether;
         amounts[1] = 1 ether;
@@ -408,7 +412,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 17
+        // 11
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -423,7 +427,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 18
+        // 12
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -438,7 +442,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 19
+        // 13
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -453,7 +457,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 20, 21
+        // 14
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -468,7 +472,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 22, 23
+        // 15
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -483,7 +487,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 24
+        // 16
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -498,7 +502,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 25
+        // 17
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -513,7 +517,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 26
+        // 18
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -528,7 +532,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 27
+        // 19
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -595,7 +599,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 28
+        // 20
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -610,7 +614,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 29
+        // 21
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -625,7 +629,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 30
+        // 22
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -640,7 +644,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 31
+        // 23
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -655,7 +659,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 32, 33
+        // 24
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -670,7 +674,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 34, 35
+        // 25
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -685,7 +689,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 36, 37
+        // 26
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -700,7 +704,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 38, 39
+        // 27
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -715,7 +719,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 40, 41
+        // 28
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -730,7 +734,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 42
+        // 29
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -745,7 +749,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 43
+        // 30
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -760,7 +764,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 44
+        // 31
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -775,7 +779,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 45
+        // 32
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -790,7 +794,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 46
+        // 33
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -807,7 +811,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 47, 48
+        // 34
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -822,7 +826,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 49
+        // 35
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -837,7 +841,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 50
+        // 36
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -852,7 +856,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 51, 52
+        // 37
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -867,7 +871,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 53
+        // 38
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -882,7 +886,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 54
+        // 39
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -897,7 +901,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 55
+        // 40
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -925,7 +929,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 56
+        // 41
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -940,7 +944,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 57
+        // 42
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -955,7 +959,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 58
+        // 43
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -970,7 +974,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 59
+        // 44
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -985,7 +989,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 60
+        // 45
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1000,7 +1004,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 61
+        // 46
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1015,7 +1019,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 62, 63
+        // 47
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1030,7 +1034,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 64
+        // 48
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1045,7 +1049,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 65
+        // 49
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1060,7 +1064,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 66, 67
+        // 50
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1075,7 +1079,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 68
+        // 51
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1097,7 +1101,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 69, 70
+        // 52
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1112,7 +1116,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 71
+        // 53
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1127,7 +1131,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 72
+        // 54
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
@@ -1142,9 +1146,9 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 73
+        // 55
         roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F, // DAI
+            0x6B175474E89094C44Da98b954EedeAC495271d0F, // 56
             0,
             abi.encodeWithSelector(IERC20.approve.selector, 0x373238337Bfe1146fb49989fc222523f83081dDb, 1 ether),
             IZodiacRoles.Operation.Call,
@@ -1210,7 +1214,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 74, 75
+        // 57
         roles.execTransactionWithRole(
             0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
             0,
@@ -1270,7 +1274,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 76
+        // 58
         roles.execTransactionWithRole(
             0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
             0,
@@ -1330,7 +1334,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 77
+        // 59
         roles.execTransactionWithRole(
             0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
             0,
@@ -1402,7 +1406,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 78
+        // 60
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.ParameterNotAllowed, bytes32(0)
@@ -1417,7 +1421,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 79, 80
+        // 61
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
@@ -1485,7 +1489,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 81, 82
+        // 62
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
@@ -1563,7 +1567,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 83, 84
+        // 63
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector,
@@ -1582,7 +1586,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 85
+        // 64
         roles.execTransactionWithRole(
             0xBA12222222228d8Ba445958a75a0704d566BF2C8,
             0,
@@ -2150,13 +2154,94 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
+        // 65
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IZodiacRoles.ConditionViolation.selector,
+                IZodiacRoles.Status.FunctionNotAllowed,
+                Balancer.setMinterApproval.selector
+            )
+        );
+        roles.execTransactionWithRole(
+            0x239e55F427D44C3cc793f49bFB507ebe76638a2b,
+            0,
+            abi.encodeWithSelector(
+                Balancer.setMinterApproval.selector, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        //66
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.deposit.selector, 25, 1 ether, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+            )
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.deposit.selector, 174, 1 ether, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.deposit.selector, 177, 1 ether, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 67
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.depositAll.selector, 25, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+            )
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.depositAll.selector, 174, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.depositAll.selector, 177, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
         vm.stopPrank();
     }
 
     function _afterExecution() public override {
         vm.startPrank(karpatkey);
 
-        // 1
+        // 0
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector,
@@ -2175,7 +2260,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 2
+        // 1
         vm.expectRevert(
             abi.encodeWithSelector(
                 IZodiacRoles.ConditionViolation.selector,
@@ -2194,7 +2279,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 3, 4
+        // 2
         roles.execTransactionWithRole(
             0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb,
             0,
@@ -2204,7 +2289,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 5, 6
+        // 3
         roles.execTransactionWithRole(
             0xA434D495249abE33E031Fe71a969B81f3c07950D,
             0,
@@ -2216,7 +2301,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 7
+        // 4
         roles.execTransactionWithRole(
             0xA434D495249abE33E031Fe71a969B81f3c07950D,
             0,
@@ -2228,7 +2313,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 8, 9
+        // 5
         roles.execTransactionWithRole(
             0xdC035D45d973E3EC169d2276DDab16f1e407384F,
             0,
@@ -2270,7 +2355,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 10, 11
+        // 6
         roles.execTransactionWithRole(
             0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
             0,
@@ -2302,7 +2387,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 12
+        // 7
         address[] memory arg = new address[](1);
         arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
         roles.execTransactionWithRole(
@@ -2332,7 +2417,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 13
+        // 8
         arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
         roles.execTransactionWithRole(
             0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
@@ -2361,7 +2446,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 14, 15
+        // 9
         roles.execTransactionWithRole(
             0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
             0,
@@ -2379,7 +2464,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 16
+        // 10
         uint256[] memory amounts = new uint256[](2);
         amounts[0] = 1 ether;
         amounts[1] = 1 ether;
@@ -2392,7 +2477,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 17
+        // 11
         roles.execTransactionWithRole(
             0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
             0,
@@ -2402,7 +2487,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 18
+        // 12
         roles.execTransactionWithRole(
             0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
             0,
@@ -2422,7 +2507,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 20, 21
+        // 13
         roles.execTransactionWithRole(
             0xc2591073629AcD455f2fEc56A398B677F2Ccb80c,
             0,
@@ -2432,7 +2517,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 22, 23
+        // 14
         roles.execTransactionWithRole(
             0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
             0,
@@ -2442,7 +2527,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 24
+        // 15
         roles.execTransactionWithRole(
             0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
             0,
@@ -2452,7 +2537,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 25
+        // 16
         roles.execTransactionWithRole(
             0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
             0,
@@ -2462,7 +2547,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 26
+        // 17
         roles.execTransactionWithRole(
             0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
             0,
@@ -2472,7 +2557,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 27
+        // 18
         roles.execTransactionWithRole(
             0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
             0,
@@ -2514,7 +2599,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 28
+        // 19
         roles.execTransactionWithRole(
             0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
             0,
@@ -2524,7 +2609,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 29
+        // 20
         roles.execTransactionWithRole(
             0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
             0,
@@ -2534,7 +2619,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 30
+        // 21
         roles.execTransactionWithRole(
             0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
             0,
@@ -2544,7 +2629,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 31
+        // 22
         roles.execTransactionWithRole(
             0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
             0,
@@ -2554,7 +2639,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 32, 33
+        // 23
         roles.execTransactionWithRole(
             0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C,
             0,
@@ -2564,7 +2649,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 34, 35
+        // 24
         roles.execTransactionWithRole(
             0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
             0,
@@ -2574,7 +2659,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 36, 37
+        // 25
         roles.execTransactionWithRole(
             0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
             0,
@@ -2584,7 +2669,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 38, 39
+        // 26
         roles.execTransactionWithRole(
             0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
             0,
@@ -2594,7 +2679,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 40, 41
+        // 27
         roles.execTransactionWithRole(
             0x0650CAF159C5A49f711e8169D4336ECB9b950275,
             0,
@@ -2604,7 +2689,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 42
+        // 28
         roles.execTransactionWithRole(
             0x0650CAF159C5A49f711e8169D4336ECB9b950275,
             0,
@@ -2614,7 +2699,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 43
+        // 29
         roles.execTransactionWithRole(
             0x0650CAF159C5A49f711e8169D4336ECB9b950275,
             0,
@@ -2624,7 +2709,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 44
+        // 30
         roles.execTransactionWithRole(
             0x0650CAF159C5A49f711e8169D4336ECB9b950275,
             0,
@@ -2634,7 +2719,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 45
+        // 31
         roles.execTransactionWithRole(
             0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
             0,
@@ -2644,7 +2729,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 46
+        // 32
         roles.execTransactionWithRole(
             0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
             0,
@@ -2656,7 +2741,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 47, 48
+        // 33
         roles.execTransactionWithRole(
             0xd03BE91b1932715709e18021734fcB91BB431715,
             0,
@@ -2666,7 +2751,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 49
+        // 34
         roles.execTransactionWithRole(
             0xd03BE91b1932715709e18021734fcB91BB431715,
             0,
@@ -2676,7 +2761,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 50
+        // 35
         roles.execTransactionWithRole(
             0xd03BE91b1932715709e18021734fcB91BB431715,
             0,
@@ -2686,7 +2771,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 51, 52
+        // 36
         roles.execTransactionWithRole(
             0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
             0,
@@ -2696,7 +2781,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 53
+        // 37
         roles.execTransactionWithRole(
             0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
             0,
@@ -2706,7 +2791,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 54
+        // 38
         roles.execTransactionWithRole(
             0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
             0,
@@ -2716,7 +2801,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 55
+        // 39
         roles.execTransactionWithRole(
             0x83F20F44975D03b1b09e64809B757c47f942BEeA,
             0,
@@ -2734,7 +2819,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 56
+        // 40
         roles.execTransactionWithRole(
             0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
             0,
@@ -2744,7 +2829,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 57
+        // 41
         roles.execTransactionWithRole(
             0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
             0,
@@ -2754,7 +2839,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 58
+        // 42
         roles.execTransactionWithRole(
             0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
             0,
@@ -2764,7 +2849,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 59
+        // 43
         roles.execTransactionWithRole(
             0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
             0,
@@ -2774,7 +2859,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 60
+        // 44
         roles.execTransactionWithRole(
             0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
             0,
@@ -2784,7 +2869,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 61
+        // 45
         roles.execTransactionWithRole(
             0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
             0,
@@ -2794,7 +2879,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 62, 63
+        // 46
         roles.execTransactionWithRole(
             0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
             0,
@@ -2804,7 +2889,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 64
+        // 47
         roles.execTransactionWithRole(
             0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
             0,
@@ -2814,7 +2899,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 65
+        // 48
         roles.execTransactionWithRole(
             0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
             0,
@@ -2824,7 +2909,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 66, 67
+        // 49
         roles.execTransactionWithRole(
             0x9858e47BCbBe6fBAC040519B02d7cd4B2C470C66,
             0,
@@ -2834,7 +2919,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 68
+        // 50
         roles.execTransactionWithRole(
             0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7,
             0,
@@ -2851,7 +2936,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 69, 70
+        // 51
         roles.execTransactionWithRole(
             0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
             0,
@@ -2861,7 +2946,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 71
+        // 52
         roles.execTransactionWithRole(
             0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
             0,
@@ -2871,7 +2956,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 72
+        // 53
         roles.execTransactionWithRole(
             0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
             0,
@@ -2881,9 +2966,9 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 73
+        // 54
         roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F, // DAI
+            0x6B175474E89094C44Da98b954EedeAC495271d0F, // 55
             0,
             abi.encodeWithSelector(IERC20.approve.selector, 0x373238337Bfe1146fb49989fc222523f83081dDb, 1 ether),
             IZodiacRoles.Operation.Call,
@@ -2939,7 +3024,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 74, 75
+        // 56
         roles.execTransactionWithRole(
             0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
             0,
@@ -2989,7 +3074,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 76
+        // 57
         roles.execTransactionWithRole(
             0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
             0,
@@ -3039,7 +3124,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 77
+        // 58
         roles.execTransactionWithRole(
             0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
             0,
@@ -3101,7 +3186,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 78
+        // 59
         roles.execTransactionWithRole(
             0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8,
             0,
@@ -3111,7 +3196,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 79, 80
+        // 60
         roles.execTransactionWithRole(
             0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
             0,
@@ -3169,7 +3254,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 81, 82
+        // 61
         roles.execTransactionWithRole(
             0xdAC17F958D2ee523a2206206994597C13D831ec7,
             0,
@@ -3227,7 +3312,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 83, 84
+        // 63
         roles.execTransactionWithRole(
             0xBA12222222228d8Ba445958a75a0704d566BF2C8,
             0,
@@ -3239,7 +3324,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
-        // 85
+        // 64
         roles.execTransactionWithRole(
             0xBA12222222228d8Ba445958a75a0704d566BF2C8,
             0,
@@ -3787,6 +3872,96 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             false
         );
 
+        // 65
+        roles.execTransactionWithRole(
+            0x239e55F427D44C3cc793f49bFB507ebe76638a2b,
+            0,
+            abi.encodeWithSelector(
+                Balancer.setMinterApproval.selector, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
+            ),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        //66
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.deposit.selector, 25, 1 ether, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.deposit.selector, 174, 1 ether, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.deposit.selector, 177, 1 ether, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+            )
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.deposit.selector, 190, 1 ether, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
+        // 67
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.depositAll.selector, 25, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.depositAll.selector, 174, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.depositAll.selector, 177, true),
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+            )
+        );
+        roles.execTransactionWithRole(
+            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+            0,
+            abi.encodeWithSelector(Convex.depositAll.selector, 190, true), // 190 isn't allowed
+            IZodiacRoles.Operation.Call,
+            MANAGER_ROLE,
+            false
+        );
+
         vm.stopPrank();
     }
 
@@ -3809,8 +3984,8 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             0,
             0,
             0,
-            0x0000000000000000000000000000000000,
-            0x0000000000000000000000000000000000,
+            0x0000000000000000000000000000000000000000,
+            0x0000000000000000000000000000000000000000,
             hex"000000000000000000000000fe89cc7abb2c4183683ab71653c4cdc9b02d44b7000000000000000000000000000000000000000000000000000000000000000001"
         );
 
