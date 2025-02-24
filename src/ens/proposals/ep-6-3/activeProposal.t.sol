@@ -90,6 +90,25 @@ interface Convex {
     function depositAll(uint256, bool) external;
 }
 
+interface CowSwap {
+    struct Data {
+        IERC20 sellToken;
+        IERC20 buyToken;
+        address receiver;
+        uint256 sellAmount;
+        uint256 buyAmount;
+        uint32 validTo;
+        bytes32 appData;
+        uint256 feeAmount;
+        bytes32 kind;
+        bool partiallyFillable;
+        bytes32 sellTokenBalance;
+        bytes32 buyTokenBalance;
+    }
+
+    function signOrder(Data memory, uint32, uint256) external;
+}
+
 interface OETH {
     function swapExactTokensForTokens(address, address, uint256, uint256, address) external;
     function claimWithdrawals(uint256[] calldata _requestIds) external;
@@ -168,2072 +187,1643 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
     function _beforeExecution() public override {
         vm.startPrank(karpatkey);
 
-        // 0
-        roles.execTransactionWithRole(
-            aave,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 1
-        roles.execTransactionWithRole(
-            aave,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 2
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb,
-            0,
-            abi.encodeWithSelector(AaveV3.claimRewards.selector, new address[](0), 1 ether, safe, address(0)),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 3
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xA434D495249abE33E031Fe71a969B81f3c07950D,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 4
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xA434D495249abE33E031Fe71a969B81f3c07950D,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 5
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 6
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
-            0,
-            abi.encodeWithSelector(
-                Balancer.gaugeWithdraw.selector,
-                0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C,
-                0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE,
-                safe,
-                0
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 7
+        uint256[] memory amounts = new uint256[](2);
         address[] memory arg = new address[](1);
-        arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
 
+        // 0
+        {
+            _safeExecuteTransaction(
+                aave,
+                abi.encodeWithSelector(
+                    AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
+                )
+            );
+        }
+        // 1
+        {
+            _safeExecuteTransaction(
+                aave,
+                abi.encodeWithSelector(
+                    AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
+                )
+            );
+        }
+        // 2
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb,
+                abi.encodeWithSelector(AaveV3.claimRewards.selector, new address[](0), 1 ether, safe, address(0))
+            );
+        }
+        // 3
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xA434D495249abE33E031Fe71a969B81f3c07950D,
+                abi.encodeWithSelector(
+                    AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
+                )
+            );
+        }
+        // 4
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xA434D495249abE33E031Fe71a969B81f3c07950D,
+                abi.encodeWithSelector(
+                    AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
+                )
+            );
+        }
+        // 5
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether)
+            );
+        }
+        // 6
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                abi.encodeWithSelector(
+                    Balancer.gaugeWithdraw.selector,
+                    0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C,
+                    0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE,
+                    safe,
+                    0
+                )
+            );
+        }
+        // 7
+        {
+            arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg)
+            );
+            arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg)
+            );
+            arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg)
+            );
+        }
         // 8
-        arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether)
+            );
+            arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether)
+            );
+            arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether)
+            );
+        }
         // 9
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xd03BE91b1932715709e18021734fcB91BB431715, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xF403C135812408BFbE8713b5A23a04b3D48AAE31, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xd03BE91b1932715709e18021734fcB91BB431715, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xF403C135812408BFbE8713b5A23a04b3D48AAE31, 1 ether)
+            );
+        }
 
         // 10
-        uint256[] memory amounts = new uint256[](2);
-        amounts[0] = 1 ether;
-        amounts[1] = 1 ether;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(Curve.add_liquidity.selector, amounts, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            amounts[0] = 1 ether;
+            amounts[1] = 1 ether;
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(Curve.add_liquidity.selector, amounts, 1 ether)
+            );
+        }
         // 11
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(Curve.remove_liquidity.selector, 1 ether, amounts),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(Curve.remove_liquidity.selector, 1 ether, amounts)
+            );
+        }
         // 12
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether)
+            );
+        }
         // 13
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(Curve.exchange.selector, 0, 1, 1 ether, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(Curve.exchange.selector, 0, 1, 1 ether, 1 ether)
+            );
+        }
         // 14
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xc2591073629AcD455f2fEc56A398B677F2Ccb80c,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xc2591073629AcD455f2fEc56A398B677F2Ccb80c,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, 1 ether)
+            );
+        }
         // 15
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-            0,
-            abi.encodeWithSelector(Convex.stake.selector, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, abi.encodeWithSelector(Convex.stake.selector, 1 ether)
+            );
+        }
         // 16
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-            0,
-            abi.encodeWithSelector(Convex.withdraw.selector, 1 ether, false),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
+                abi.encodeWithSelector(Convex.withdraw.selector, 1 ether, false)
+            );
+        }
         // 17
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-            0,
-            abi.encodeWithSelector(Convex.withdrawAndUnwrap.selector, 1 ether, false),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
+                abi.encodeWithSelector(Convex.withdrawAndUnwrap.selector, 1 ether, false)
+            );
+        }
         // 18
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-            0,
-            abi.encodeWithSelector(Convex.getReward.selector, safe, false),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
+                abi.encodeWithSelector(Convex.getReward.selector, safe, false)
+            );
+        }
         // 19
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x94B17476A93b3262d87B9a326965D1E91f9c13E7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 20
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 21
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
-            0,
-            abi.encodeWithSelector(Sky.deposit.selector, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 22
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,address,address)")), 1 ether, safe, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 23
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
-            0,
-            abi.encodeWithSelector(Sky.redeem.selector, 1 ether, safe, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 24
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 25
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
-            0,
-            abi.encodeWithSelector(Sky.migrateDAIToUSDS.selector, safe, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 26
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
-            0,
-            abi.encodeWithSelector(Sky.migrateDAIToSUSDS.selector, safe, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 27
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
-            0,
-            abi.encodeWithSelector(Sky.downgradeUSDSToDAI.selector, safe, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 28
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
-            0,
-            abi.encodeWithSelector(Sky.stake.selector, 10, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 29
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 30
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
-            0,
-            abi.encodeWithSelector(Sky.exit.selector),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 31
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
-            0,
-            abi.encodeWithSelector(Sky.getReward.selector),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 32
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
-            0,
-            abi.encodeWithSelector(Sky.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 33
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
-            0,
-            abi.encodeWithSelector(
-                bytes4(keccak256("withdraw(address,uint256)")), 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 34
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xd03BE91b1932715709e18021734fcB91BB431715,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 35
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xd03BE91b1932715709e18021734fcB91BB431715,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 36
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xd03BE91b1932715709e18021734fcB91BB431715,
-            0,
-            abi.encodeWithSelector(Curve.claim_rewards.selector),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 37
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 38
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 39
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
-            0,
-            abi.encodeWithSelector(Curve.set_approve_deposit.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 40
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x83F20F44975D03b1b09e64809B757c47f942BEeA,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x83F20F44975D03b1b09e64809B757c47f942BEeA,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 41
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("add_liquidity(uint256[],uint256)")), amounts, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 42
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("remove_liquidity(uint256,uint256[])")), 1 ether, amounts),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 43
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(Curve.remove_liquidity_imbalance.selector, amounts, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 44
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 45
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(Curve.approve.selector, 0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 46
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(Curve.exchange.selector, 0, 1, 1 ether, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 47
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 48
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 49
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
-            0,
-            abi.encodeWithSelector(Curve.claim_rewards.selector),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 50
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x9858e47BCbBe6fBAC040519B02d7cd4B2C470C66,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("deposit()"))),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 51
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7,
-            0,
-            abi.encodeWithSelector(
-                OETH.swapExactTokensForTokens.selector,
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
                 0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-                0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-                1 ether,
-                0,
-                safe
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x94B17476A93b3262d87B9a326965D1E91f9c13E7, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+        }
+        // 20
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+        }
+        // 21
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD, abi.encodeWithSelector(Sky.deposit.selector, 1 ether, safe)
+            );
+        }
+        // 22
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,address,address)")), 1 ether, safe, safe)
+            );
+        }
+        // 23
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
+                abi.encodeWithSelector(Sky.redeem.selector, 1 ether, safe, safe)
+            );
+        }
+        // 24
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+        }
+        // 25
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
+                abi.encodeWithSelector(Sky.migrateDAIToUSDS.selector, safe, 1 ether)
+            );
+        }
+        // 26
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
+                abi.encodeWithSelector(Sky.migrateDAIToSUSDS.selector, safe, 1 ether)
+            );
+        }
+        // 27
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
+                abi.encodeWithSelector(Sky.downgradeUSDSToDAI.selector, safe, 1 ether)
+            );
+        }
+        // 28
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x0650CAF159C5A49f711e8169D4336ECB9b950275, abi.encodeWithSelector(Sky.stake.selector, 10, 1 ether)
+            );
+        }
+        // 29
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x0650CAF159C5A49f711e8169D4336ECB9b950275,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether)
+            );
+        }
+        // 30
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x0650CAF159C5A49f711e8169D4336ECB9b950275, abi.encodeWithSelector(Sky.exit.selector)
+            );
+        }
+        // 31
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x0650CAF159C5A49f711e8169D4336ECB9b950275, abi.encodeWithSelector(Sky.getReward.selector)
+            );
+        }
+        // 32
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
+                abi.encodeWithSelector(Sky.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether)
+            );
+        }
+        // 33
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
+                abi.encodeWithSelector(
+                    bytes4(keccak256("withdraw(address,uint256)")), 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether
+                )
+            );
+        }
+        // 34
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xd03BE91b1932715709e18021734fcB91BB431715,
+                abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether)
+            );
+        }
+        // 35
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xd03BE91b1932715709e18021734fcB91BB431715,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether)
+            );
+        }
+        // 36
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xd03BE91b1932715709e18021734fcB91BB431715, abi.encodeWithSelector(Curve.claim_rewards.selector)
+            );
+        }
+        // 37
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+                abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether)
+            );
+        }
+        // 38
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether)
+            );
+        }
+        // 39
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+                abi.encodeWithSelector(
+                    Curve.set_approve_deposit.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, true
+                )
+            );
+        }
+        // 40
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x83F20F44975D03b1b09e64809B757c47f942BEeA,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x83F20F44975D03b1b09e64809B757c47f942BEeA,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+        }
+        // 41
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(bytes4(keccak256("add_liquidity(uint256[],uint256)")), amounts, 1 ether)
+            );
+        }
+        // 42
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(bytes4(keccak256("remove_liquidity(uint256,uint256[])")), 1 ether, amounts)
+            );
+        }
+        // 43
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(Curve.remove_liquidity_imbalance.selector, amounts, 1 ether)
+            );
+        }
+        // 44
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether)
+            );
+        }
+        // 45
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(Curve.approve.selector, 0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D, 1 ether)
+            );
+        }
+        // 46
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(Curve.exchange.selector, 0, 1, 1 ether, 0)
+            );
+        }
+        // 47
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
+                abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether)
+            );
+        }
+        // 48
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether)
+            );
+        }
+        // 49
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D, abi.encodeWithSelector(Curve.claim_rewards.selector)
+            );
+        }
+        // 50
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x9858e47BCbBe6fBAC040519B02d7cd4B2C470C66, abi.encodeWithSelector(bytes4(keccak256("deposit()")))
+            );
+        }
+        // 51
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7,
+                abi.encodeWithSelector(
+                    OETH.swapExactTokensForTokens.selector,
+                    0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                    0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+                    1 ether,
+                    0,
+                    safe
+                )
+            );
+        }
         // 52
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
-            0,
-            abi.encodeWithSelector(Origin.requestWithdrawal.selector, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
+                abi.encodeWithSelector(Origin.requestWithdrawal.selector, 1 ether)
+            );
+        }
         // 53
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
-            0,
-            abi.encodeWithSelector(Origin.claimWithdrawal.selector, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
+                abi.encodeWithSelector(Origin.claimWithdrawal.selector, 1 ether)
+            );
+        }
         // 54
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
-            0,
-            abi.encodeWithSelector(OETH.claimWithdrawals.selector, amounts),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
+                abi.encodeWithSelector(OETH.claimWithdrawals.selector, amounts)
+            );
+        }
         // 55
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F, // 56
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x373238337Bfe1146fb49989fc222523f83081dDb, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F, // 56
+                abi.encodeWithSelector(IERC20.approve.selector, 0x373238337Bfe1146fb49989fc222523f83081dDb, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether)
+            );
+        }
         // 57
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe, 0
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe, 0
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe, 0
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe, 0
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe, 0
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe, 0
+                )
+            );
+        }
         // 58
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe
+                )
+            );
+        }
         // 59
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, true
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, true
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, true
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, true
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, true
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, true
+                )
+            );
+        }
         // 60
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.ParameterNotAllowed, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xA434D495249abE33E031Fe71a969B81f3c07950D, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.ParameterNotAllowed, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xA434D495249abE33E031Fe71a969B81f3c07950D, 1 ether)
+            );
+        }
         // 61
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xc3d688B66703497DAA19211EEdff47f25384cdc3, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xc3d688B66703497DAA19211EEdff47f25384cdc3, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+        }
         // 62
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+        }
         // 63
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector,
-                IZodiacRoles.Status.FunctionNotAllowed,
-                Balancer.setRelayerApproval.selector
-            )
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.setRelayerApproval.selector, safe, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector,
+                    IZodiacRoles.Status.FunctionNotAllowed,
+                    Balancer.setRelayerApproval.selector
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.setRelayerApproval.selector, safe, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
+                )
+            );
+        }
         // 64
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x0b09dea16768f0799065c475be02919503cb2a3500020000000000000000001a,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xba100000625a3754423978a60c9317c58a424e3D),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f8000200000000000000000019,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xefaa1604e82e1b3af8430b90192c1b9e8197e377000200000000000000000021,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                    assetOut: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                    assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xdfe6e7e18f6cc65fa13c8d8966013d4fda74b6ba000000000000000000000558,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    assetOut: IAsset(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xdfe6e7e18f6cc65fa13c8d8966013d4fda74b6ba000000000000000000000558,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                    assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x0b09dea16768f0799065c475be02919503cb2a3500020000000000000000001a,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xba100000625a3754423978a60c9317c58a424e3D),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f8000200000000000000000019,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xefaa1604e82e1b3af8430b90192c1b9e8197e377000200000000000000000021,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xc00e94Cb662C3520282E6f5717214004A7f26888),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        assetOut: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xdfe6e7e18f6cc65fa13c8d8966013d4fda74b6ba000000000000000000000558,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        assetOut: IAsset(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xdfe6e7e18f6cc65fa13c8d8966013d4fda74b6ba000000000000000000000558,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
+                        assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+        }
         // 65
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector,
-                IZodiacRoles.Status.FunctionNotAllowed,
-                Balancer.setMinterApproval.selector
-            )
-        );
-        roles.execTransactionWithRole(
-            0x239e55F427D44C3cc793f49bFB507ebe76638a2b,
-            0,
-            abi.encodeWithSelector(
-                Balancer.setMinterApproval.selector, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector,
+                    IZodiacRoles.Status.FunctionNotAllowed,
+                    Balancer.setMinterApproval.selector
+                )
+            );
+            _safeExecuteTransaction(
+                0x239e55F427D44C3cc793f49bFB507ebe76638a2b,
+                abi.encodeWithSelector(
+                    Balancer.setMinterApproval.selector, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
+                )
+            );
+        }
         //66
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.deposit.selector, 25, 1 ether, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.deposit.selector, 174, 1 ether, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.deposit.selector, 177, 1 ether, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.deposit.selector, 25, 1 ether, true)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.deposit.selector, 174, 1 ether, true)
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.deposit.selector, 177, 1 ether, true)
+            );
+        }
         // 67
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.depositAll.selector, 25, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.depositAll.selector, 174, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.depositAll.selector, 177, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
+        {
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31, abi.encodeWithSelector(Convex.depositAll.selector, 25, true)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.depositAll.selector, 174, true)
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.depositAll.selector, 177, true)
+            );
+        }
+        // 68
+        {
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,uint256)")), 25, 1 ether)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,uint256)")), 174, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,uint256)")), 177, 1 ether)
+            );
+        }
 
         vm.stopPrank();
     }
@@ -2241,1728 +1831,3137 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
     function _afterExecution() public override {
         vm.startPrank(karpatkey);
 
-        // 0
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector,
-                3,
-                0x474cf53d00000000000000000000000000000000000000000000000000000000
-            )
-        );
-        roles.execTransactionWithRole(
-            aave,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 1
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector,
-                3,
-                0x80500d2000000000000000000000000000000000000000000000000000000000
-            )
-        );
-        roles.execTransactionWithRole(
-            aave,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 2
-        roles.execTransactionWithRole(
-            0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb,
-            0,
-            abi.encodeWithSelector(AaveV3.claimRewards.selector, new address[](0), 1 ether, safe, address(0)),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 3
-        roles.execTransactionWithRole(
-            0xA434D495249abE33E031Fe71a969B81f3c07950D,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 4
-        roles.execTransactionWithRole(
-            0xA434D495249abE33E031Fe71a969B81f3c07950D,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 5
-        roles.execTransactionWithRole(
-            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x0650CAF159C5A49f711e8169D4336ECB9b950275, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdC035D45d973E3EC169d2276DDab16f1e407384F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 6
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(
-                Balancer.gaugeWithdraw.selector, 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C, safe, safe, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(
-                Balancer.gaugeWithdraw.selector, 0x79eF6103A513951a3b25743DB509E267685726B7, safe, safe, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(
-                Balancer.gaugeWithdraw.selector, 0xc592c33e51A764B94DB0702D8BAf4035eD577aED, safe, safe, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 7
+        uint256[] memory amounts = new uint256[](2);
         address[] memory arg = new address[](1);
-        arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
 
+        // 0
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector,
+                    3,
+                    0x474cf53d00000000000000000000000000000000000000000000000000000000
+                )
+            );
+            _safeExecuteTransaction(
+                aave,
+                abi.encodeWithSelector(
+                    AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
+                )
+            );
+        }
+        // 1
+        {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector,
+                    3,
+                    0x80500d2000000000000000000000000000000000000000000000000000000000
+                )
+            );
+            _safeExecuteTransaction(
+                aave,
+                abi.encodeWithSelector(
+                    AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
+                )
+            );
+        }
+        // 2
+        {
+            _safeExecuteTransaction(
+                0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb,
+                abi.encodeWithSelector(AaveV3.claimRewards.selector, new address[](0), 1 ether, safe, address(0))
+            );
+        }
+        // 3
+        {
+            _safeExecuteTransaction(
+                0xA434D495249abE33E031Fe71a969B81f3c07950D,
+                abi.encodeWithSelector(
+                    AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
+                )
+            );
+        }
+        // 4
+        {
+            _safeExecuteTransaction(
+                0xA434D495249abE33E031Fe71a969B81f3c07950D,
+                abi.encodeWithSelector(
+                    AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
+                )
+            );
+        }
+        // 5
+        {
+            _safeExecuteTransaction(
+                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x0650CAF159C5A49f711e8169D4336ECB9b950275, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether)
+            );
+        }
+        // 6
+        {
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(
+                    Balancer.gaugeWithdraw.selector, 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C, safe, safe, 1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(
+                    Balancer.gaugeWithdraw.selector, 0x79eF6103A513951a3b25743DB509E267685726B7, safe, safe, 1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(
+                    Balancer.gaugeWithdraw.selector, 0xc592c33e51A764B94DB0702D8BAf4035eD577aED, safe, safe, 1 ether
+                )
+            );
+        }
+        // 7
+        {
+            arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg)
+            );
+            arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg)
+            );
+            arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeClaimRewards.selector, arg)
+            );
+        }
         // 8
-        arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
-        roles.execTransactionWithRole(
-            0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
-            0,
-            abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            arg[0] = 0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C;
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether)
+            );
+            arg[0] = 0x79eF6103A513951a3b25743DB509E267685726B7;
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether)
+            );
+            arg[0] = 0xc592c33e51A764B94DB0702D8BAf4035eD577aED;
+            _safeExecuteTransaction(
+                0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f,
+                abi.encodeWithSelector(Balancer.gaugeMint.selector, arg, 1 ether)
+            );
+        }
         // 9
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xd03BE91b1932715709e18021734fcB91BB431715, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xF403C135812408BFbE8713b5A23a04b3D48AAE31, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
+        {
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xd03BE91b1932715709e18021734fcB91BB431715, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xF403C135812408BFbE8713b5A23a04b3D48AAE31, 1 ether)
+            );
+        }
 
         // 10
-        uint256[] memory amounts = new uint256[](2);
-        amounts[0] = 1 ether;
-        amounts[1] = 1 ether;
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(Curve.add_liquidity.selector, amounts, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            amounts[0] = 1 ether;
+            amounts[1] = 1 ether;
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(Curve.add_liquidity.selector, amounts, 1 ether)
+            );
+        }
         // 11
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(Curve.remove_liquidity.selector, 1 ether, amounts),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(Curve.remove_liquidity.selector, 1 ether, amounts)
+            );
+        }
         // 12
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
+        {
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether)
+            );
 
-        //19
-        roles.execTransactionWithRole(
-            0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
-            0,
-            abi.encodeWithSelector(Curve.exchange.selector, 0, 1, 1 ether, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+            //19
+            _safeExecuteTransaction(
+                0x94B17476A93b3262d87B9a326965D1E91f9c13E7,
+                abi.encodeWithSelector(Curve.exchange.selector, 0, 1, 1 ether, 1 ether)
+            );
+        }
         // 13
-        roles.execTransactionWithRole(
-            0xc2591073629AcD455f2fEc56A398B677F2Ccb80c,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0xc2591073629AcD455f2fEc56A398B677F2Ccb80c,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, 1 ether)
+            );
+        }
         // 14
-        roles.execTransactionWithRole(
-            0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-            0,
-            abi.encodeWithSelector(Convex.stake.selector, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, abi.encodeWithSelector(Convex.stake.selector, 1 ether)
+            );
+        }
         // 15
-        roles.execTransactionWithRole(
-            0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-            0,
-            abi.encodeWithSelector(Convex.withdraw.selector, 1 ether, false),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
+                abi.encodeWithSelector(Convex.withdraw.selector, 1 ether, false)
+            );
+        }
         // 16
-        roles.execTransactionWithRole(
-            0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-            0,
-            abi.encodeWithSelector(Convex.withdrawAndUnwrap.selector, 1 ether, false),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
+                abi.encodeWithSelector(Convex.withdrawAndUnwrap.selector, 1 ether, false)
+            );
+        }
         // 17
-        roles.execTransactionWithRole(
-            0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-            0,
-            abi.encodeWithSelector(Convex.getReward.selector, safe, false),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
+                abi.encodeWithSelector(Convex.getReward.selector, safe, false)
+            );
+        }
         // 18
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x94B17476A93b3262d87B9a326965D1E91f9c13E7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 19
-        roles.execTransactionWithRole(
-            0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 20
-        roles.execTransactionWithRole(
-            0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
-            0,
-            abi.encodeWithSelector(Sky.deposit.selector, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 21
-        roles.execTransactionWithRole(
-            0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,address,address)")), 1 ether, safe, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 22
-        roles.execTransactionWithRole(
-            0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
-            0,
-            abi.encodeWithSelector(Sky.redeem.selector, 1 ether, safe, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 23
-        roles.execTransactionWithRole(
-            0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 24
-        roles.execTransactionWithRole(
-            0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
-            0,
-            abi.encodeWithSelector(Sky.migrateDAIToUSDS.selector, safe, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 25
-        roles.execTransactionWithRole(
-            0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
-            0,
-            abi.encodeWithSelector(Sky.migrateDAIToSUSDS.selector, safe, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 26
-        roles.execTransactionWithRole(
-            0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
-            0,
-            abi.encodeWithSelector(Sky.downgradeUSDSToDAI.selector, safe, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 27
-        roles.execTransactionWithRole(
-            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
-            0,
-            abi.encodeWithSelector(Sky.stake.selector, 10, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 28
-        roles.execTransactionWithRole(
-            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 29
-        roles.execTransactionWithRole(
-            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
-            0,
-            abi.encodeWithSelector(Sky.exit.selector),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 30
-        roles.execTransactionWithRole(
-            0x0650CAF159C5A49f711e8169D4336ECB9b950275,
-            0,
-            abi.encodeWithSelector(Sky.getReward.selector),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 31
-        roles.execTransactionWithRole(
-            0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
-            0,
-            abi.encodeWithSelector(Sky.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 32
-        roles.execTransactionWithRole(
-            0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
-            0,
-            abi.encodeWithSelector(
-                bytes4(keccak256("withdraw(address,uint256)")), 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 33
-        roles.execTransactionWithRole(
-            0xd03BE91b1932715709e18021734fcB91BB431715,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 34
-        roles.execTransactionWithRole(
-            0xd03BE91b1932715709e18021734fcB91BB431715,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 35
-        roles.execTransactionWithRole(
-            0xd03BE91b1932715709e18021734fcB91BB431715,
-            0,
-            abi.encodeWithSelector(Curve.claim_rewards.selector),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 36
-        roles.execTransactionWithRole(
-            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 37
-        roles.execTransactionWithRole(
-            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 38
-        roles.execTransactionWithRole(
-            0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
-            0,
-            abi.encodeWithSelector(Curve.set_approve_deposit.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 39
-        roles.execTransactionWithRole(
-            0x83F20F44975D03b1b09e64809B757c47f942BEeA,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x83F20F44975D03b1b09e64809B757c47f942BEeA,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 40
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("add_liquidity(uint256[],uint256)")), amounts, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 41
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("remove_liquidity(uint256,uint256[])")), 1 ether, amounts),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 42
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(Curve.remove_liquidity_imbalance.selector, amounts, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 43
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 44
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(Curve.approve.selector, 0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 45
-        roles.execTransactionWithRole(
-            0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
-            0,
-            abi.encodeWithSelector(Curve.exchange.selector, 0, 1, 1 ether, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 46
-        roles.execTransactionWithRole(
-            0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 47
-        roles.execTransactionWithRole(
-            0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 48
-        roles.execTransactionWithRole(
-            0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
-            0,
-            abi.encodeWithSelector(Curve.claim_rewards.selector),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 49
-        roles.execTransactionWithRole(
-            0x9858e47BCbBe6fBAC040519B02d7cd4B2C470C66,
-            0,
-            abi.encodeWithSelector(bytes4(keccak256("deposit()"))),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
-        // 50
-        roles.execTransactionWithRole(
-            0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7,
-            0,
-            abi.encodeWithSelector(
-                OETH.swapExactTokensForTokens.selector,
+        {
+            _safeExecuteTransaction(
                 0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-                0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-                1 ether,
-                0,
-                safe
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x94B17476A93b3262d87B9a326965D1E91f9c13E7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+        }
+        // 19
+        {
+            _safeExecuteTransaction(
+                0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+        }
+        // 20
+        {
+            _safeExecuteTransaction(
+                0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD, abi.encodeWithSelector(Sky.deposit.selector, 1 ether, safe)
+            );
+        }
+        // 21
+        {
+            _safeExecuteTransaction(
+                0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,address,address)")), 1 ether, safe, safe)
+            );
+        }
+        // 22
+        {
+            _safeExecuteTransaction(
+                0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD,
+                abi.encodeWithSelector(Sky.redeem.selector, 1 ether, safe, safe)
+            );
+        }
+        // 23
+        {
+            _safeExecuteTransaction(
+                0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+        }
+        // 24
+        {
+            _safeExecuteTransaction(
+                0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
+                abi.encodeWithSelector(Sky.migrateDAIToUSDS.selector, safe, 1 ether)
+            );
+        }
+        // 25
+        {
+            _safeExecuteTransaction(
+                0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
+                abi.encodeWithSelector(Sky.migrateDAIToSUSDS.selector, safe, 1 ether)
+            );
+        }
+        // 26
+        {
+            _safeExecuteTransaction(
+                0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89,
+                abi.encodeWithSelector(Sky.downgradeUSDSToDAI.selector, safe, 1 ether)
+            );
+        }
+        // 27
+        {
+            _safeExecuteTransaction(
+                0x0650CAF159C5A49f711e8169D4336ECB9b950275, abi.encodeWithSelector(Sky.stake.selector, 10, 1 ether)
+            );
+        }
+        // 28
+        {
+            _safeExecuteTransaction(
+                0x0650CAF159C5A49f711e8169D4336ECB9b950275,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether)
+            );
+        }
+        // 29
+        {
+            _safeExecuteTransaction(
+                0x0650CAF159C5A49f711e8169D4336ECB9b950275, abi.encodeWithSelector(Sky.exit.selector)
+            );
+        }
+        // 30
+        {
+            _safeExecuteTransaction(
+                0x0650CAF159C5A49f711e8169D4336ECB9b950275, abi.encodeWithSelector(Sky.getReward.selector)
+            );
+        }
+        // 31
+        {
+            _safeExecuteTransaction(
+                0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
+                abi.encodeWithSelector(Sky.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether)
+            );
+        }
+        // 32
+        {
+            _safeExecuteTransaction(
+                0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
+                abi.encodeWithSelector(
+                    bytes4(keccak256("withdraw(address,uint256)")), 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether
+                )
+            );
+        }
+        // 33
+        {
+            _safeExecuteTransaction(
+                0xd03BE91b1932715709e18021734fcB91BB431715,
+                abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether)
+            );
+        }
+        // 34
+        {
+            _safeExecuteTransaction(
+                0xd03BE91b1932715709e18021734fcB91BB431715,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether)
+            );
+        }
+        // 35
+        {
+            _safeExecuteTransaction(
+                0xd03BE91b1932715709e18021734fcB91BB431715, abi.encodeWithSelector(Curve.claim_rewards.selector)
+            );
+        }
+        // 36
+        {
+            _safeExecuteTransaction(
+                0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+                abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether)
+            );
+        }
+        // 37
+        {
+            _safeExecuteTransaction(
+                0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether)
+            );
+        }
+        // 38
+        {
+            _safeExecuteTransaction(
+                0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A,
+                abi.encodeWithSelector(
+                    Curve.set_approve_deposit.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, true
+                )
+            );
+        }
+        // 39
+        {
+            _safeExecuteTransaction(
+                0x83F20F44975D03b1b09e64809B757c47f942BEeA,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x83F20F44975D03b1b09e64809B757c47f942BEeA,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+        }
+        // 40
+        {
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(bytes4(keccak256("add_liquidity(uint256[],uint256)")), amounts, 1 ether)
+            );
+        }
+        // 41
+        {
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(bytes4(keccak256("remove_liquidity(uint256,uint256[])")), 1 ether, amounts)
+            );
+        }
+        // 42
+        {
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(Curve.remove_liquidity_imbalance.selector, amounts, 1 ether)
+            );
+        }
+        // 43
+        {
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether)
+            );
+        }
+        // 44
+        {
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(Curve.approve.selector, 0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D, 1 ether)
+            );
+        }
+        // 45
+        {
+            _safeExecuteTransaction(
+                0x425BfB93370F14fF525aDb6EaEAcfE1f4e3b5802,
+                abi.encodeWithSelector(Curve.exchange.selector, 0, 1, 1 ether, 0)
+            );
+        }
+        // 46
+        {
+            _safeExecuteTransaction(
+                0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
+                abi.encodeWithSelector(bytes4(keccak256("deposit(uint256)")), 1 ether)
+            );
+        }
+        // 47
+        {
+            _safeExecuteTransaction(
+                0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256)")), 1 ether)
+            );
+        }
+        // 48
+        {
+            _safeExecuteTransaction(
+                0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D, abi.encodeWithSelector(Curve.claim_rewards.selector)
+            );
+        }
+        // 49
+        {
+            _safeExecuteTransaction(
+                0x9858e47BCbBe6fBAC040519B02d7cd4B2C470C66, abi.encodeWithSelector(bytes4(keccak256("deposit()")))
+            );
+        }
+        // 50
+        {
+            _safeExecuteTransaction(
+                0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7,
+                abi.encodeWithSelector(
+                    OETH.swapExactTokensForTokens.selector,
+                    0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                    0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+                    1 ether,
+                    0,
+                    safe
+                )
+            );
+        }
         // 51
-        roles.execTransactionWithRole(
-            0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
-            0,
-            abi.encodeWithSelector(Origin.requestWithdrawal.selector, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
+                abi.encodeWithSelector(Origin.requestWithdrawal.selector, 1 ether)
+            );
+        }
         // 52
-        roles.execTransactionWithRole(
-            0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
-            0,
-            abi.encodeWithSelector(Origin.claimWithdrawal.selector, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
+                abi.encodeWithSelector(Origin.claimWithdrawal.selector, 1 ether)
+            );
+        }
         // 53
-        roles.execTransactionWithRole(
-            0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
-            0,
-            abi.encodeWithSelector(OETH.claimWithdrawals.selector, amounts),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
+                abi.encodeWithSelector(OETH.claimWithdrawals.selector, amounts)
+            );
+        }
         // 54
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F, // 55
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x373238337Bfe1146fb49989fc222523f83081dDb, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x6B175474E89094C44Da98b954EedeAC495271d0F,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F, // 55
+                abi.encodeWithSelector(IERC20.approve.selector, 0x373238337Bfe1146fb49989fc222523f83081dDb, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether)
+            );
+        }
         // 56
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.supply.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe, 0),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe, 0
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe, 0
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe, 0
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe, 0
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe, 0
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.supply.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe, 0
+                )
+            );
+        }
         // 57
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(AaveV3.withdraw.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.withdraw.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe
+                )
+            );
+        }
         // 58
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-            0,
-            abi.encodeWithSelector(
-                AaveV3.setUserUseReserveAsCollateral.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, true
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, true
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, true
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, true
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, true
+                )
+            );
+            _safeExecuteTransaction(
+                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
+                abi.encodeWithSelector(
+                    AaveV3.setUserUseReserveAsCollateral.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, true
+                )
+            );
+        }
         // 59
-        roles.execTransactionWithRole(
-            0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xA434D495249abE33E031Fe71a969B81f3c07950D, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xA434D495249abE33E031Fe71a969B81f3c07950D, 1 ether)
+            );
+        }
         // 60
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xc3d688B66703497DAA19211EEdff47f25384cdc3, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xc3d688B66703497DAA19211EEdff47f25384cdc3, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+        }
         // 61
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xdAC17F958D2ee523a2206206994597C13D831ec7,
-            0,
-            abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
+            );
+            _safeExecuteTransaction(
+                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
+            );
+        }
         // 63
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.setRelayerApproval.selector, safe, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.setRelayerApproval.selector, safe, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
+                )
+            );
+        }
         // 64
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x0b09dea16768f0799065c475be02919503cb2a3500020000000000000000001a,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xba100000625a3754423978a60c9317c58a424e3D),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f8000200000000000000000019,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xefaa1604e82e1b3af8430b90192c1b9e8197e377000200000000000000000021,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                    assetOut: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                    assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xdfe6e7e18f6cc65fa13c8d8966013d4fda74b6ba000000000000000000000558,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    assetOut: IAsset(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xdfe6e7e18f6cc65fa13c8d8966013d4fda74b6ba000000000000000000000558,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                    assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0,
-            abi.encodeWithSelector(
-                Balancer.swap.selector,
-                Balancer.SingleSwap({
-                    poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
-                    kind: Balancer.SwapKind.GIVEN_IN,
-                    assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                    assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                    amount: 1 ether,
-                    userData: bytes("")
-                }),
-                Balancer.FundManagement({
-                    sender: safe,
-                    fromInternalBalance: false,
-                    recipient: payable(safe),
-                    toInternalBalance: false
-                }),
-                1 ether,
-                1 ether
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+        {
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x0b09dea16768f0799065c475be02919503cb2a3500020000000000000000001a,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xba100000625a3754423978a60c9317c58a424e3D),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f8000200000000000000000019,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xefaa1604e82e1b3af8430b90192c1b9e8197e377000200000000000000000021,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xc00e94Cb662C3520282E6f5717214004A7f26888),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        assetOut: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xdfe6e7e18f6cc65fa13c8d8966013d4fda74b6ba000000000000000000000558,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        assetOut: IAsset(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xdfe6e7e18f6cc65fa13c8d8966013d4fda74b6ba000000000000000000000558,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
+                        assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+            _safeExecuteTransaction(
+                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                abi.encodeWithSelector(
+                    Balancer.swap.selector,
+                    Balancer.SingleSwap({
+                        poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
+                        kind: Balancer.SwapKind.GIVEN_IN,
+                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        amount: 1 ether,
+                        userData: bytes("")
+                    }),
+                    Balancer.FundManagement({
+                        sender: safe,
+                        fromInternalBalance: false,
+                        recipient: payable(safe),
+                        toInternalBalance: false
+                    }),
+                    1 ether,
+                    1 ether
+                )
+            );
+        }
         // 65
-        roles.execTransactionWithRole(
-            0x239e55F427D44C3cc793f49bFB507ebe76638a2b,
-            0,
-            abi.encodeWithSelector(
-                Balancer.setMinterApproval.selector, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
-            ),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
+        {
+            _safeExecuteTransaction(
+                0x239e55F427D44C3cc793f49bFB507ebe76638a2b,
+                abi.encodeWithSelector(
+                    Balancer.setMinterApproval.selector, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
+                )
+            );
 
-        //66
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.deposit.selector, 25, 1 ether, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.deposit.selector, 174, 1 ether, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.deposit.selector, 177, 1 ether, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.deposit.selector, 190, 1 ether, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-
+            //66
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.deposit.selector, 25, 1 ether, true)
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.deposit.selector, 174, 1 ether, true)
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.deposit.selector, 177, 1 ether, true)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.deposit.selector, 190, 1 ether, true)
+            );
+        }
         // 67
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.depositAll.selector, 25, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.depositAll.selector, 174, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.depositAll.selector, 177, true),
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
-            )
-        );
-        roles.execTransactionWithRole(
-            0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
-            0,
-            abi.encodeWithSelector(Convex.depositAll.selector, 190, true), // 190 isn't allowed
-            IZodiacRoles.Operation.Call,
-            MANAGER_ROLE,
-            false
-        );
+        {
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31, abi.encodeWithSelector(Convex.depositAll.selector, 25, true)
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.depositAll.selector, 174, true)
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.depositAll.selector, 177, true)
+            );
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
+                )
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(Convex.depositAll.selector, 190, true)
+            );
+        }
+        // 68
+        {
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,uint256)")), 25, true)
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,uint256)")), 174, true)
+            );
+            _safeExecuteTransaction(
+                0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(uint256,uint256)")), 177, true)
+            );
+        }
+        // 69
+        {
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
+                        buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
+                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
+                        buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
+                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+            _safeExecuteTransaction(
+                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                abi.encodeWithSelector(
+                    CowSwap.signOrder.selector,
+                    CowSwap.Data({
+                        sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
+                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        receiver: safe,
+                        sellAmount: 1 ether,
+                        buyAmount: 1 ether,
+                        validTo: 1_729_852_800,
+                        appData: bytes32(0),
+                        feeAmount: 0,
+                        kind: bytes32(0),
+                        partiallyFillable: false,
+                        sellTokenBalance: bytes32(0),
+                        buyTokenBalance: bytes32(0)
+                    }),
+                    1,
+                    1
+                )
+            );
+        }
 
         vm.stopPrank();
+    }
+
+    function _safeExecuteTransaction(address target, bytes memory data) internal {
+        roles.execTransactionWithRole(target, 0, data, IZodiacRoles.Operation.Call, MANAGER_ROLE, false);
     }
 
     function _generateCallData()
