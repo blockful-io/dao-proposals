@@ -1862,6 +1862,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
 
     function _afterExecution() public override {
         vm.startPrank(karpatkey);
+        vm.pauseGasMetering();
 
         uint256[] memory amounts = new uint256[](2);
         address[] memory arg = new address[](1);
@@ -3053,8 +3054,9 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                     Balancer.setMinterApproval.selector, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
                 )
             );
-
-            //66
+        }
+        // 66
+        {
             _safeExecuteTransaction(
                 0xF403C135812408BFbE8713b5A23a04b3D48AAE31,
                 abi.encodeWithSelector(Convex.deposit.selector, 25, 1 ether, true)
@@ -7855,7 +7857,6 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                     1
                 )
             );
-
             _safeExecuteTransaction(
                 0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
                 abi.encodeWithSelector(
@@ -9949,7 +9950,6 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             address[] memory tokens = new address[](2);
             tokens[0] = 0x83F20F44975D03b1b09e64809B757c47f942BEeA;
             tokens[1] = 0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C;
-
             _safeExecuteTransaction(
                 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7,
                 abi.encodeWithSelector(
@@ -9990,7 +9990,9 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
     }
 
     function _safeExecuteTransaction(address target, bytes memory data) internal {
+        uint256 snapshot = vm.snapshot();
         roles.execTransactionWithRole(target, 0, data, IZodiacRoles.Operation.Call, MANAGER_ROLE, false);
+        vm.revertTo(snapshot);
     }
 
     function _generateCallData()
