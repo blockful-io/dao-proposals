@@ -14,9 +14,6 @@
   solc = "0.8.25"
   src = "src"
   test = "src"
-  fs_permissions = [
-    { access = "read", path = "./src/ens/proposals/ep-6-3/" },
-  ]
 
 [profile.ci]
   fuzz = { runs = 10_000 }

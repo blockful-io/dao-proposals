@@ -141,7 +141,7 @@ interface CowSwap {
     function signOrder(Data memory, uint32, uint256) external;
 }
 
-interface OETH {
+interface IOETH {
     function swapExactTokensForTokens(address, address, uint256, uint256, address) external;
     function claimWithdrawals(uint256[] calldata _requestIds) external;
 }
@@ -211,8 +211,22 @@ interface IZodiacRoles {
 
 contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
     address safe = 0x4F2083f5fBede34C2714aFfb3105539775f7FE64;
-    address aave = 0x893411580e590D62dDBca8a703d61Cc4A8c7b2b9;
+    address AAVE = 0x893411580e590D62dDBca8a703d61Cc4A8c7b2b9;
     address karpatkey = 0xb423e0f6E7430fa29500c5cC9bd83D28c8BD8978;
+    address WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
+    address AaveLendingPool = 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2;
+    address CurvePool = 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
+    address BalancerVault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+    address UniswapV3 = 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45;
+    address USDS = 0xdC035D45d973E3EC169d2276DDab16f1e407384F;
+    address BaseRewardPool = 0x24b65DC1cf053A8D96872c323d29e86ec43eB33A;
+    address CowOrderSigner = 0x23dA9AdE38E4477b23770DeD512fD37b12381FAB;
+    address OETH = 0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3;
+    address osETH = 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38;
+
     IZodiacRoles roles = IZodiacRoles(0x703806E61847984346d2D7DDd853049627e50A40);
     bytes32 constant MANAGER_ROLE = 0x4d414e4147455200000000000000000000000000000000000000000000000000;
 
@@ -225,19 +239,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         // 0
         {
             _safeExecuteTransaction(
-                aave,
-                abi.encodeWithSelector(
-                    AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
-                )
+                AAVE, abi.encodeWithSelector(AaveV3.depositETH.selector, AaveLendingPool, safe, 1 ether)
             );
         }
         // 1
         {
             _safeExecuteTransaction(
-                aave,
-                abi.encodeWithSelector(
-                    AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
-                )
+                AAVE, abi.encodeWithSelector(AaveV3.withdrawETH.selector, AaveLendingPool, 1 ether, safe)
             );
         }
         // 2
@@ -261,9 +269,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
             _safeExecuteTransaction(
                 0xA434D495249abE33E031Fe71a969B81f3c07950D,
-                abi.encodeWithSelector(
-                    AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
-                )
+                abi.encodeWithSelector(AaveV3.depositETH.selector, AaveLendingPool, safe, 1 ether)
             );
         }
         // 4
@@ -275,9 +281,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
             _safeExecuteTransaction(
                 0xA434D495249abE33E031Fe71a969B81f3c07950D,
-                abi.encodeWithSelector(
-                    AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
-                )
+                abi.encodeWithSelector(AaveV3.withdrawETH.selector, AaveLendingPool, 1 ether, safe)
             );
         }
         // 5
@@ -287,10 +291,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
                 )
             );
-            _safeExecuteTransaction(
-                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether)
-            );
+            _safeExecuteTransaction(USDS, abi.encodeWithSelector(IERC20.approve.selector, USDS, 1 ether));
         }
         // 6
         {
@@ -300,7 +301,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                USDS,
                 abi.encodeWithSelector(
                     Balancer.gaugeWithdraw.selector,
                     0x5C0F23A5c1be65Fa710d385814a7Fd1Bda480b1C,
@@ -457,7 +458,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
             _safeExecuteTransaction(
                 0xc2591073629AcD455f2fEc56A398B677F2Ccb80c,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, 1 ether)
+                abi.encodeWithSelector(IERC20.approve.selector, BaseRewardPool, 1 ether)
             );
         }
         // 15
@@ -467,9 +468,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
                 )
             );
-            _safeExecuteTransaction(
-                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, abi.encodeWithSelector(Convex.stake.selector, 1 ether)
-            );
+            _safeExecuteTransaction(BaseRewardPool, abi.encodeWithSelector(Convex.stake.selector, 1 ether));
         }
         // 16
         {
@@ -478,10 +477,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
                 )
             );
-            _safeExecuteTransaction(
-                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-                abi.encodeWithSelector(Convex.withdraw.selector, 1 ether, false)
-            );
+            _safeExecuteTransaction(BaseRewardPool, abi.encodeWithSelector(Convex.withdraw.selector, 1 ether, false));
         }
         // 17
         {
@@ -491,8 +487,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-                abi.encodeWithSelector(Convex.withdrawAndUnwrap.selector, 1 ether, false)
+                BaseRewardPool, abi.encodeWithSelector(Convex.withdrawAndUnwrap.selector, 1 ether, false)
             );
         }
         // 18
@@ -502,10 +497,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
                 )
             );
-            _safeExecuteTransaction(
-                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-                abi.encodeWithSelector(Convex.getReward.selector, safe, false)
-            );
+            _safeExecuteTransaction(BaseRewardPool, abi.encodeWithSelector(Convex.getReward.selector, safe, false));
         }
         // 19
         {
@@ -515,7 +507,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                OETH,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
             );
             vm.expectRevert(
@@ -524,7 +516,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                OETH,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7, 1 ether)
             );
             vm.expectRevert(
@@ -533,7 +525,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                OETH,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x94B17476A93b3262d87B9a326965D1E91f9c13E7, 1 ether)
             );
             vm.expectRevert(
@@ -541,17 +533,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
                 )
             );
-            _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
-            );
+            _safeExecuteTransaction(OETH, abi.encodeWithSelector(IERC20.approve.selector, BalancerVault, 1 ether));
             vm.expectRevert(
                 abi.encodeWithSelector(
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.TargetAddressNotAllowed, bytes32(0)
                 )
             );
             _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                OETH,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
             );
         }
@@ -703,8 +692,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
-                abi.encodeWithSelector(Sky.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether)
+                0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840, abi.encodeWithSelector(Sky.supply.selector, USDT, 1 ether)
             );
         }
         // 33
@@ -716,9 +704,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
             _safeExecuteTransaction(
                 0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
-                abi.encodeWithSelector(
-                    bytes4(keccak256("withdraw(address,uint256)")), 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether
-                )
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(address,uint256)")), USDT, 1 ether)
             );
         }
         // 34
@@ -942,14 +928,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
             _safeExecuteTransaction(
                 0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7,
-                abi.encodeWithSelector(
-                    OETH.swapExactTokensForTokens.selector,
-                    0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-                    0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-                    1 ether,
-                    0,
-                    safe
-                )
+                abi.encodeWithSelector(IOETH.swapExactTokensForTokens.selector, OETH, WETH, 1 ether, 0, safe)
             );
         }
         // 52
@@ -985,38 +964,32 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
             _safeExecuteTransaction(
                 0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
-                abi.encodeWithSelector(OETH.claimWithdrawals.selector, amounts)
+                abi.encodeWithSelector(IOETH.claimWithdrawals.selector, amounts)
             );
         }
         // 55
         {
             _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F, // 56
+                DAI,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x373238337Bfe1146fb49989fc222523f83081dDb, 1 ether)
             );
+        }
+        // 56
+        {
             vm.expectRevert(
                 abi.encodeWithSelector(
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
                 )
             );
             _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                DAI,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
             );
+            _safeExecuteTransaction(DAI, abi.encodeWithSelector(IERC20.approve.selector, UniswapV3, 1 ether));
+            _safeExecuteTransaction(DAI, abi.encodeWithSelector(IERC20.approve.selector, AaveLendingPool, 1 ether));
+            _safeExecuteTransaction(DAI, abi.encodeWithSelector(IERC20.approve.selector, CurvePool, 1 ether));
             _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                DAI,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
             );
             vm.expectRevert(
@@ -1025,29 +998,20 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                DAI,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether)
             );
         }
         // 57
         {
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, DAI, 1 ether, safe, 0)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, USDC, 1 ether, safe, 0)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, WETH, 1 ether, safe, 0)
             );
             vm.expectRevert(
                 abi.encodeWithSelector(
@@ -1055,10 +1019,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, USDT, 1 ether, safe, 0)
             );
             vm.expectRevert(
                 abi.encodeWithSelector(
@@ -1066,37 +1027,22 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, USDS, 1 ether, safe, 0)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, osETH, 1 ether, safe, 0)
             );
         }
         // 58
         {
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, DAI, 1 ether, safe)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, USDC, 1 ether, safe)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, WETH, 1 ether, safe)
             );
             vm.expectRevert(
                 abi.encodeWithSelector(
@@ -1104,10 +1050,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, USDT, 1 ether, safe)
             );
             vm.expectRevert(
                 abi.encodeWithSelector(
@@ -1115,37 +1058,22 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, USDS, 1 ether, safe)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, osETH, 1 ether, safe)
             );
         }
         // 59
         {
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, DAI, true)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, USDC, true)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, WETH, true)
             );
             vm.expectRevert(
                 abi.encodeWithSelector(
@@ -1153,10 +1081,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, USDT, true)
             );
             vm.expectRevert(
                 abi.encodeWithSelector(
@@ -1164,16 +1089,10 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, USDS, true)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, osETH, true)
             );
         }
         // 60
@@ -1196,36 +1115,24 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                USDC,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
             );
-            _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
-            );
+            _safeExecuteTransaction(USDC, abi.encodeWithSelector(IERC20.approve.selector, UniswapV3, 1 ether));
+            _safeExecuteTransaction(USDC, abi.encodeWithSelector(IERC20.approve.selector, AaveLendingPool, 1 ether));
             vm.expectRevert(
                 abi.encodeWithSelector(
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
                 )
             );
+            _safeExecuteTransaction(USDC, abi.encodeWithSelector(IERC20.approve.selector, BalancerVault, 1 ether));
+            _safeExecuteTransaction(USDC, abi.encodeWithSelector(IERC20.approve.selector, CurvePool, 1 ether));
             _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                USDC,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xc3d688B66703497DAA19211EEdff47f25384cdc3, 1 ether)
             );
             _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                USDC,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
             );
         }
@@ -1237,7 +1144,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                USDT,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840, 1 ether)
             );
             vm.expectRevert(
@@ -1246,37 +1153,25 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                USDT,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
             );
-            _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
-            );
+            _safeExecuteTransaction(USDT, abi.encodeWithSelector(IERC20.approve.selector, UniswapV3, 1 ether));
             vm.expectRevert(
                 abi.encodeWithSelector(
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
                 )
             );
-            _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
-            );
+            _safeExecuteTransaction(USDT, abi.encodeWithSelector(IERC20.approve.selector, AaveLendingPool, 1 ether));
             vm.expectRevert(
                 abi.encodeWithSelector(
                     IZodiacRoles.ConditionViolation.selector, IZodiacRoles.Status.OrViolation, bytes32(0)
                 )
             );
+            _safeExecuteTransaction(USDT, abi.encodeWithSelector(IERC20.approve.selector, BalancerVault, 1 ether));
+            _safeExecuteTransaction(USDT, abi.encodeWithSelector(IERC20.approve.selector, CurvePool, 1 ether));
             _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                USDT,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
             );
         }
@@ -1290,7 +1185,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.setRelayerApproval.selector, safe, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
                 )
@@ -1299,14 +1194,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         // 64
         {
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x0b09dea16768f0799065c475be02919503cb2a3500020000000000000000001a,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        assetOut: IAsset(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        assetIn: IAsset(WETH),
+                        assetOut: IAsset(DAI),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1321,14 +1216,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xba100000625a3754423978a60c9317c58a424e3D),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1343,14 +1238,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f8000200000000000000000019,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        assetIn: IAsset(WETH),
+                        assetOut: IAsset(USDC),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1365,14 +1260,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1387,14 +1282,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xefaa1604e82e1b3af8430b90192c1b9e8197e377000200000000000000000021,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1409,14 +1304,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1431,13 +1326,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(WETH),
                         assetOut: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         amount: 1 ether,
                         userData: bytes("")
@@ -1453,14 +1348,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1475,13 +1370,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(WETH),
                         assetOut: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
                         amount: 1 ether,
                         userData: bytes("")
@@ -1502,14 +1397,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(OETH),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1529,14 +1424,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        assetOut: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        assetIn: IAsset(WETH),
+                        assetOut: IAsset(OETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1556,14 +1451,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                        assetOut: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        assetIn: IAsset(USDC),
+                        assetOut: IAsset(USDT),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1583,14 +1478,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        assetIn: IAsset(USDT),
+                        assetOut: IAsset(USDC),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1605,14 +1500,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1627,13 +1522,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(WETH),
                         assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         amount: 1 ether,
                         userData: bytes("")
@@ -1649,14 +1544,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        assetOut: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        assetIn: IAsset(WETH),
+                        assetOut: IAsset(osETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1671,14 +1566,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(osETH),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1693,7 +1588,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
@@ -1715,7 +1610,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
@@ -1737,14 +1632,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -1759,13 +1654,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(WETH),
                         assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         amount: 1 ether,
                         userData: bytes("")
@@ -1877,10 +1772,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                aave,
-                abi.encodeWithSelector(
-                    AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
-                )
+                AAVE, abi.encodeWithSelector(AaveV3.depositETH.selector, AaveLendingPool, safe, 1 ether)
             );
         }
         // 1
@@ -1893,10 +1785,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                aave,
-                abi.encodeWithSelector(
-                    AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
-                )
+                AAVE, abi.encodeWithSelector(AaveV3.withdrawETH.selector, AaveLendingPool, 1 ether, safe)
             );
         }
         // 2
@@ -1910,40 +1799,33 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         {
             _safeExecuteTransaction(
                 0xA434D495249abE33E031Fe71a969B81f3c07950D,
-                abi.encodeWithSelector(
-                    AaveV3.depositETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, safe, 1 ether
-                )
+                abi.encodeWithSelector(AaveV3.depositETH.selector, AaveLendingPool, safe, 1 ether)
             );
         }
         // 4
         {
             _safeExecuteTransaction(
                 0xA434D495249abE33E031Fe71a969B81f3c07950D,
-                abi.encodeWithSelector(
-                    AaveV3.withdrawETH.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether, safe
-                )
+                abi.encodeWithSelector(AaveV3.withdrawETH.selector, AaveLendingPool, 1 ether, safe)
             );
         }
         // 5
         {
             _safeExecuteTransaction(
-                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                USDS,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x0650CAF159C5A49f711e8169D4336ECB9b950275, 1 ether)
             );
+            _safeExecuteTransaction(USDS, abi.encodeWithSelector(IERC20.approve.selector, AaveLendingPool, 1 ether));
             _safeExecuteTransaction(
-                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                USDS,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD, 1 ether)
             );
             _safeExecuteTransaction(
-                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                USDS,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
             );
             _safeExecuteTransaction(
-                0xdC035D45d973E3EC169d2276DDab16f1e407384F,
+                USDS,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether)
             );
         }
@@ -2049,56 +1931,44 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         {
             _safeExecuteTransaction(
                 0xc2591073629AcD455f2fEc56A398B677F2Ccb80c,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, 1 ether)
+                abi.encodeWithSelector(IERC20.approve.selector, BaseRewardPool, 1 ether)
             );
         }
         // 14
         {
-            _safeExecuteTransaction(
-                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A, abi.encodeWithSelector(Convex.stake.selector, 1 ether)
-            );
+            _safeExecuteTransaction(BaseRewardPool, abi.encodeWithSelector(Convex.stake.selector, 1 ether));
         }
         // 15
         {
-            _safeExecuteTransaction(
-                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-                abi.encodeWithSelector(Convex.withdraw.selector, 1 ether, false)
-            );
+            _safeExecuteTransaction(BaseRewardPool, abi.encodeWithSelector(Convex.withdraw.selector, 1 ether, false));
         }
         // 16
         {
             _safeExecuteTransaction(
-                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-                abi.encodeWithSelector(Convex.withdrawAndUnwrap.selector, 1 ether, false)
+                BaseRewardPool, abi.encodeWithSelector(Convex.withdrawAndUnwrap.selector, 1 ether, false)
             );
         }
         // 17
         {
-            _safeExecuteTransaction(
-                0x24b65DC1cf053A8D96872c323d29e86ec43eB33A,
-                abi.encodeWithSelector(Convex.getReward.selector, safe, false)
-            );
+            _safeExecuteTransaction(BaseRewardPool, abi.encodeWithSelector(Convex.getReward.selector, safe, false));
         }
         // 18
         {
             _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                OETH,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
             );
             _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                OETH,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7, 1 ether)
             );
             _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                OETH,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x94B17476A93b3262d87B9a326965D1E91f9c13E7, 1 ether)
             );
+            _safeExecuteTransaction(OETH, abi.encodeWithSelector(IERC20.approve.selector, BalancerVault, 1 ether));
             _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
+                OETH,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
             );
         }
@@ -2185,17 +2055,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         // 31
         {
             _safeExecuteTransaction(
-                0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
-                abi.encodeWithSelector(Sky.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether)
+                0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840, abi.encodeWithSelector(Sky.supply.selector, USDT, 1 ether)
             );
         }
         // 32
         {
             _safeExecuteTransaction(
                 0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840,
-                abi.encodeWithSelector(
-                    bytes4(keccak256("withdraw(address,uint256)")), 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether
-                )
+                abi.encodeWithSelector(bytes4(keccak256("withdraw(address,uint256)")), USDT, 1 ether)
             );
         }
         // 33
@@ -2324,14 +2191,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         {
             _safeExecuteTransaction(
                 0x6bac785889A4127dB0e0CeFEE88E0a9F1Aaf3cC7,
-                abi.encodeWithSelector(
-                    OETH.swapExactTokensForTokens.selector,
-                    0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3,
-                    0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-                    1 ether,
-                    0,
-                    safe
-                )
+                abi.encodeWithSelector(IOETH.swapExactTokensForTokens.selector, OETH, WETH, 1 ether, 0, safe)
             );
         }
         // 51
@@ -2352,155 +2212,92 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         {
             _safeExecuteTransaction(
                 0x39254033945AA2E4809Cc2977E7087BEE48bd7Ab,
-                abi.encodeWithSelector(OETH.claimWithdrawals.selector, amounts)
+                abi.encodeWithSelector(IOETH.claimWithdrawals.selector, amounts)
             );
         }
         // 54
         {
             _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F, // 55
+                DAI, // 55
                 abi.encodeWithSelector(IERC20.approve.selector, 0x373238337Bfe1146fb49989fc222523f83081dDb, 1 ether)
             );
             _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                DAI,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
             );
+            _safeExecuteTransaction(DAI, abi.encodeWithSelector(IERC20.approve.selector, UniswapV3, 1 ether));
+            _safeExecuteTransaction(DAI, abi.encodeWithSelector(IERC20.approve.selector, AaveLendingPool, 1 ether));
+            _safeExecuteTransaction(DAI, abi.encodeWithSelector(IERC20.approve.selector, CurvePool, 1 ether));
             _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                DAI,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
             );
             _safeExecuteTransaction(
-                0x6B175474E89094C44Da98b954EedeAC495271d0F,
+                DAI,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89, 1 ether)
             );
         }
         // 56
         {
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, DAI, 1 ether, safe, 0)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, USDC, 1 ether, safe, 0)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, WETH, 1 ether, safe, 0)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, USDT, 1 ether, safe, 0)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, USDS, 1 ether, safe, 0)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.supply.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe, 0
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.supply.selector, osETH, 1 ether, safe, 0)
             );
         }
         // 57
         {
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, DAI, 1 ether, safe)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, USDC, 1 ether, safe)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, WETH, 1 ether, safe)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, USDT, 1 ether, safe)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, USDS, 1 ether, safe)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.withdraw.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, 1 ether, safe
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.withdraw.selector, osETH, 1 ether, safe)
             );
         }
         // 58
         {
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0x6B175474E89094C44Da98b954EedeAC495271d0F, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, DAI, true)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, USDC, true)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, WETH, true)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xdAC17F958D2ee523a2206206994597C13D831ec7, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, USDT, true)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xdC035D45d973E3EC169d2276DDab16f1e407384F, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, USDS, true)
             );
             _safeExecuteTransaction(
-                0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2,
-                abi.encodeWithSelector(
-                    AaveV3.setUserUseReserveAsCollateral.selector, 0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38, true
-                )
+                AaveLendingPool, abi.encodeWithSelector(AaveV3.setUserUseReserveAsCollateral.selector, osETH, true)
             );
         }
         // 59
@@ -2513,69 +2310,45 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         // 60
         {
             _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                USDC,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
             );
+            _safeExecuteTransaction(USDC, abi.encodeWithSelector(IERC20.approve.selector, UniswapV3, 1 ether));
+            _safeExecuteTransaction(USDC, abi.encodeWithSelector(IERC20.approve.selector, AaveLendingPool, 1 ether));
+            _safeExecuteTransaction(USDC, abi.encodeWithSelector(IERC20.approve.selector, BalancerVault, 1 ether));
+            _safeExecuteTransaction(USDC, abi.encodeWithSelector(IERC20.approve.selector, CurvePool, 1 ether));
             _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                USDC,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xc3d688B66703497DAA19211EEdff47f25384cdc3, 1 ether)
             );
             _safeExecuteTransaction(
-                0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
+                USDC,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
             );
         }
         // 61
         {
             _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                USDT,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840, 1 ether)
             );
             _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                USDT,
                 abi.encodeWithSelector(IERC20.approve.selector, 0x56C526b0159a258887e0d79ec3a80dfb940d0cD7, 1 ether)
             );
+            _safeExecuteTransaction(USDT, abi.encodeWithSelector(IERC20.approve.selector, UniswapV3, 1 ether));
+            _safeExecuteTransaction(USDT, abi.encodeWithSelector(IERC20.approve.selector, AaveLendingPool, 1 ether));
+            _safeExecuteTransaction(USDT, abi.encodeWithSelector(IERC20.approve.selector, BalancerVault, 1 ether));
+            _safeExecuteTransaction(USDT, abi.encodeWithSelector(IERC20.approve.selector, CurvePool, 1 ether));
             _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
-                abi.encodeWithSelector(IERC20.approve.selector, 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xBA12222222228d8Ba445958a75a0704d566BF2C8, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
-                abi.encodeWithSelector(IERC20.approve.selector, 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7, 1 ether)
-            );
-            _safeExecuteTransaction(
-                0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                USDT,
                 abi.encodeWithSelector(IERC20.approve.selector, 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110, 1 ether)
             );
         }
         // 63
         {
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.setRelayerApproval.selector, safe, 0x35Cea9e57A393ac66Aaa7E25C391D52C74B5648f, true
                 )
@@ -2584,14 +2357,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         // 64
         {
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x0b09dea16768f0799065c475be02919503cb2a3500020000000000000000001a,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        assetOut: IAsset(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        assetIn: IAsset(WETH),
+                        assetOut: IAsset(DAI),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2606,14 +2379,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xba100000625a3754423978a60c9317c58a424e3D),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2628,14 +2401,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f8000200000000000000000019,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        assetIn: IAsset(WETH),
+                        assetOut: IAsset(USDC),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2650,14 +2423,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2672,14 +2445,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xefaa1604e82e1b3af8430b90192c1b9e8197e377000200000000000000000021,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2694,14 +2467,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2716,13 +2489,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(WETH),
                         assetOut: IAsset(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         amount: 1 ether,
                         userData: bytes("")
@@ -2738,14 +2511,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2760,13 +2533,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x37b18b10ce5635a84834b26095a0ae5639dcb7520000000000000000000005cb,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(WETH),
                         assetOut: IAsset(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
                         amount: 1 ether,
                         userData: bytes("")
@@ -2782,14 +2555,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(OETH),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2804,14 +2577,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x7056c8dfa8182859ed0d4fb0ef0886fdf3d2edcf000200000000000000000623,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        assetOut: IAsset(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        assetIn: IAsset(WETH),
+                        assetOut: IAsset(OETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2826,14 +2599,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                        assetOut: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        assetIn: IAsset(USDC),
+                        assetOut: IAsset(USDT),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2848,14 +2621,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        assetOut: IAsset(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        assetIn: IAsset(USDT),
+                        assetOut: IAsset(USDC),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2870,14 +2643,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2892,13 +2665,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0x93d199263632a4ef4bb438f1feb99e57b4b5f0bd0000000000000000000005c2,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(WETH),
                         assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         amount: 1 ether,
                         userData: bytes("")
@@ -2914,14 +2687,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        assetOut: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        assetIn: IAsset(WETH),
+                        assetOut: IAsset(osETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2936,14 +2709,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xdacf5fa19b1f720111609043ac67a9818262850c000000000000000000000635,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(osETH),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -2958,7 +2731,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
@@ -2980,7 +2753,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
@@ -3002,14 +2775,14 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
                         kind: Balancer.SwapKind.GIVEN_IN,
                         assetIn: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        assetOut: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetOut: IAsset(WETH),
                         amount: 1 ether,
                         userData: bytes("")
                     }),
@@ -3024,13 +2797,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+                BalancerVault,
                 abi.encodeWithSelector(
                     Balancer.swap.selector,
                     Balancer.SingleSwap({
                         poolId: 0xf01b0684c98cd7ada480bfdf6e43876422fa1fc10002000000000000000005de,
                         kind: Balancer.SwapKind.GIVEN_IN,
-                        assetIn: IAsset(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        assetIn: IAsset(WETH),
                         assetOut: IAsset(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         amount: 1 ether,
                         userData: bytes("")
@@ -3120,7 +2893,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         // 69
         {
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3142,12 +2915,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3164,7 +2937,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3186,12 +2959,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3208,12 +2981,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3230,7 +3003,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3252,12 +3025,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3274,7 +3047,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3296,12 +3069,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3318,12 +3091,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3340,11 +3113,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(DAI),
                         buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -3362,12 +3135,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(DAI),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3384,11 +3157,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(DAI),
                         buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -3406,12 +3179,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(DAI),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3428,12 +3201,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(DAI),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3450,7 +3223,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3472,12 +3245,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3494,7 +3267,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3516,12 +3289,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3538,12 +3311,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3560,11 +3333,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(USDC),
                         buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -3582,12 +3355,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(USDC),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3604,11 +3377,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(USDC),
                         buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -3626,12 +3399,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDC),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3648,12 +3421,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDC),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3670,7 +3443,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3692,12 +3465,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3714,7 +3487,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3736,12 +3509,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3758,12 +3531,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3780,7 +3553,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3802,12 +3575,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3824,7 +3597,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3846,12 +3619,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3868,12 +3641,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3890,7 +3663,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3912,12 +3685,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3934,7 +3707,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -3956,12 +3729,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -3978,12 +3751,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4000,7 +3773,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4022,12 +3795,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4044,7 +3817,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4066,12 +3839,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4088,12 +3861,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4110,7 +3883,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4132,12 +3905,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4154,7 +3927,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4176,12 +3949,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4198,12 +3971,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4220,11 +3993,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(WETH),
                         buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -4242,12 +4015,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(WETH),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4264,11 +4037,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(WETH),
                         buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -4286,12 +4059,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(WETH),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4308,12 +4081,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(WETH),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4330,7 +4103,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4352,12 +4125,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4374,7 +4147,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4396,12 +4169,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4418,12 +4191,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4440,7 +4213,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4462,12 +4235,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4484,7 +4257,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4506,12 +4279,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4528,12 +4301,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4550,7 +4323,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4572,12 +4345,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4594,7 +4367,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4616,12 +4389,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4638,12 +4411,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4660,11 +4433,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -4682,12 +4455,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4704,11 +4477,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -4726,12 +4499,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4748,12 +4521,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4770,7 +4543,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4792,12 +4565,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4814,7 +4587,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -4836,12 +4609,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4858,12 +4631,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4880,11 +4653,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(osETH),
                         buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -4902,12 +4675,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4924,11 +4697,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(osETH),
                         buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -4946,12 +4719,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4968,12 +4741,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -4990,11 +4763,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(osETH),
                         buyToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5012,12 +4785,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(OETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5034,11 +4807,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(osETH),
                         buyToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5056,12 +4829,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5078,12 +4851,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(USDS),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5102,7 +4875,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         }
         {
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5124,11 +4897,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5146,7 +4919,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5168,11 +4941,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5190,11 +4963,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5212,7 +4985,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5234,11 +5007,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5256,7 +5029,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5278,11 +5051,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5300,11 +5073,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5322,12 +5095,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5344,12 +5117,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(OETH),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5366,12 +5139,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5388,12 +5161,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5410,12 +5183,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(USDS),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5432,7 +5205,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5454,11 +5227,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5476,7 +5249,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5498,11 +5271,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5520,11 +5293,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5542,12 +5315,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5564,12 +5337,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(OETH),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5586,12 +5359,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5608,12 +5381,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5630,12 +5403,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(USDS),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -5652,7 +5425,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5674,11 +5447,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5696,7 +5469,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5718,11 +5491,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5740,11 +5513,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5762,7 +5535,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5784,11 +5557,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5806,7 +5579,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5828,11 +5601,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5850,11 +5623,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5872,7 +5645,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5894,11 +5667,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5916,7 +5689,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -5938,11 +5711,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5960,11 +5733,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -5982,7 +5755,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6004,11 +5777,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6026,7 +5799,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6048,11 +5821,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6070,11 +5843,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6092,7 +5865,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6114,11 +5887,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6136,7 +5909,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6158,11 +5931,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6180,11 +5953,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6202,12 +5975,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6224,12 +5997,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(OETH),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6246,12 +6019,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6268,12 +6041,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6290,12 +6063,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(USDS),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6312,7 +6085,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6334,11 +6107,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6356,7 +6129,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6378,11 +6151,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6400,11 +6173,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6422,7 +6195,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6444,11 +6217,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6466,7 +6239,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6488,11 +6261,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6510,11 +6283,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6532,7 +6305,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6554,11 +6327,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6576,7 +6349,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6598,11 +6371,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6620,11 +6393,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6642,12 +6415,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6664,12 +6437,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(OETH),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6686,12 +6459,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6708,12 +6481,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6730,12 +6503,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDS),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6752,7 +6525,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6774,11 +6547,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
+                        sellToken: IERC20(OETH),
                         buyToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6796,7 +6569,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -6818,11 +6591,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6840,11 +6613,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
+                        sellToken: IERC20(USDS),
                         buyToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -6862,12 +6635,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6884,12 +6657,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(OETH),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6906,12 +6679,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6928,12 +6701,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6950,12 +6723,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(USDS),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6972,12 +6745,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -6994,12 +6767,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(OETH),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7016,12 +6789,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7038,12 +6811,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7060,12 +6833,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdC035D45d973E3EC169d2276DDab16f1e407384F),
-                        buyToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(USDS),
+                        buyToken: IERC20(osETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7084,12 +6857,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         }
         {
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7106,7 +6879,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7128,12 +6901,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7150,7 +6923,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7172,7 +6945,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7194,12 +6967,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7216,12 +6989,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7239,12 +7012,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7261,7 +7034,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7283,12 +7056,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7305,7 +7078,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7327,7 +7100,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7349,12 +7122,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7371,12 +7144,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7394,12 +7167,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7416,7 +7189,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7438,12 +7211,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7460,7 +7233,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7482,7 +7255,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7504,12 +7277,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7526,12 +7299,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7549,12 +7322,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(DAI),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7571,11 +7344,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(DAI),
                         buyToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -7593,12 +7366,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(DAI),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7615,11 +7388,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(DAI),
                         buyToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -7637,11 +7410,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(DAI),
                         buyToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -7659,12 +7432,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(DAI),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7681,12 +7454,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(DAI),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7704,12 +7477,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7726,7 +7499,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7748,12 +7521,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7770,7 +7543,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7792,7 +7565,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -7814,12 +7587,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7836,12 +7609,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7858,12 +7631,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(USDC),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7880,11 +7653,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(USDC),
                         buyToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -7902,12 +7675,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(USDC),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7924,11 +7697,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(USDC),
                         buyToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -7946,11 +7719,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(USDC),
                         buyToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -7968,12 +7741,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(USDC),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -7990,12 +7763,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDC),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8013,12 +7786,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8035,7 +7808,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8057,12 +7830,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8079,7 +7852,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8101,7 +7874,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8123,12 +7896,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8145,12 +7918,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xA35b1B31Ce002FBF2058D22F30f95D405200A15b),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8168,12 +7941,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8190,7 +7963,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8212,12 +7985,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8234,7 +8007,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8256,7 +8029,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8278,12 +8051,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8300,12 +8073,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8323,12 +8096,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8345,7 +8118,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8367,12 +8140,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8389,7 +8162,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8411,7 +8184,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8433,12 +8206,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8455,12 +8228,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8478,12 +8251,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8500,7 +8273,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8522,12 +8295,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8544,7 +8317,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8566,7 +8339,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8588,12 +8361,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8610,12 +8383,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xba100000625a3754423978a60c9317c58a424e3D),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8633,12 +8406,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8655,7 +8428,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8677,12 +8450,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8699,7 +8472,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8721,7 +8494,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8743,12 +8516,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8765,12 +8538,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xc00e94Cb662C3520282E6f5717214004A7f26888),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8788,12 +8561,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(WETH),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8810,11 +8583,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(WETH),
                         buyToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -8832,12 +8605,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(WETH),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8854,11 +8627,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(WETH),
                         buyToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -8876,11 +8649,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(WETH),
                         buyToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -8898,12 +8671,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(WETH),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8920,12 +8693,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(WETH),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8943,12 +8716,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -8965,7 +8738,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -8987,12 +8760,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9009,7 +8782,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9031,7 +8804,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9053,12 +8826,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9075,12 +8848,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9098,12 +8871,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9120,7 +8893,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9142,12 +8915,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9164,7 +8937,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9186,7 +8959,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9208,12 +8981,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9230,12 +9003,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD33526068D116cE69F19A9ee46F0bd304F21A51f),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9253,12 +9026,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9275,7 +9048,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9297,12 +9070,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9319,7 +9092,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9341,7 +9114,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9363,12 +9136,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9385,12 +9158,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9408,12 +9181,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9430,11 +9203,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -9452,12 +9225,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9474,11 +9247,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -9496,11 +9269,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
                         buyToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -9518,12 +9291,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9540,12 +9313,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(USDT),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9563,12 +9336,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9585,7 +9358,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9607,12 +9380,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9629,7 +9402,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9651,7 +9424,7 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
@@ -9673,12 +9446,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9695,12 +9468,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
                         sellToken: IERC20(0xE95A203B1a91a908F9B9CE46459d101078c2c3cb),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9718,12 +9491,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             );
 
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(DAI),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9740,11 +9513,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(osETH),
                         buyToken: IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -9762,12 +9535,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(USDC),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9784,11 +9557,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(osETH),
                         buyToken: IERC20(0xae78736Cd615f374D3085123A210448E74Fc6393),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -9806,11 +9579,11 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
+                        sellToken: IERC20(osETH),
                         buyToken: IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84),
                         receiver: safe,
                         sellAmount: 1 ether,
@@ -9828,12 +9601,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(WETH),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9850,12 +9623,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
                 )
             );
             _safeExecuteTransaction(
-                0x23dA9AdE38E4477b23770DeD512fD37b12381FAB,
+                CowOrderSigner,
                 abi.encodeWithSelector(
                     CowSwap.signOrder.selector,
                     CowSwap.Data({
-                        sellToken: IERC20(0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38),
-                        buyToken: IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7),
+                        sellToken: IERC20(osETH),
+                        buyToken: IERC20(USDT),
                         receiver: safe,
                         sellAmount: 1 ether,
                         buyAmount: 1 ether,
@@ -9881,24 +9654,25 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         }
         // 72
         {
+            address CurveTokenMinter = 0xd061D61a4d941c39E5453435B6345Dc261C2fcE0;
             _safeExecuteTransaction(
-                0xd061D61a4d941c39E5453435B6345Dc261C2fcE0,
+                CurveTokenMinter,
                 abi.encodeWithSelector(Curve.mint.selector, 0x182B723a58739a9c974cFDB385ceaDb237453c28)
             );
             _safeExecuteTransaction(
-                0xd061D61a4d941c39E5453435B6345Dc261C2fcE0,
+                CurveTokenMinter,
                 abi.encodeWithSelector(Curve.mint.selector, 0x79F21BC30632cd40d2aF8134B469a0EB4C9574AA)
             );
             _safeExecuteTransaction(
-                0xd061D61a4d941c39E5453435B6345Dc261C2fcE0,
+                CurveTokenMinter,
                 abi.encodeWithSelector(Curve.mint.selector, 0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A)
             );
             _safeExecuteTransaction(
-                0xd061D61a4d941c39E5453435B6345Dc261C2fcE0,
+                CurveTokenMinter,
                 abi.encodeWithSelector(Curve.mint.selector, 0xcF5136C67fA8A375BaBbDf13c0307EF994b5681D)
             );
             _safeExecuteTransaction(
-                0xd061D61a4d941c39E5453435B6345Dc261C2fcE0,
+                CurveTokenMinter,
                 abi.encodeWithSelector(Curve.mint.selector, 0xd03BE91b1932715709e18021734fcB91BB431715)
             );
         }
@@ -9910,21 +9684,21 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
             amounts[2] = 1 ether;
             {
                 _safeExecuteTransaction(
-                    0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7,
+                    CurvePool,
                     abi.encodeWithSelector(bytes4(keccak256("add_liquidity(uint256[3],uint256)")), amounts, 1 ether)
                 );
             }
             // 74
             {
                 _safeExecuteTransaction(
-                    0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7,
+                    CurvePool,
                     abi.encodeWithSelector(bytes4(keccak256("remove_liquidity(uint256,uint256[3])")), 1 ether, amounts)
                 );
             }
             // 75
             {
                 _safeExecuteTransaction(
-                    0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7,
+                    CurvePool,
                     abi.encodeWithSelector(
                         bytes4(keccak256("remove_liquidity_imbalance(uint256[3],uint256)")), amounts, 1 ether
                     )
@@ -9934,14 +9708,13 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         // 76
         {
             _safeExecuteTransaction(
-                0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7,
-                abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether)
+                CurvePool, abi.encodeWithSelector(Curve.remove_liquidity_one_coin.selector, 1 ether, 0, 1 ether)
             );
         }
         // 77
         {
             _safeExecuteTransaction(
-                0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7,
+                CurvePool,
                 abi.encodeWithSelector(Curve.approve.selector, 0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A, 1 ether)
             );
         }
@@ -9970,12 +9743,12 @@ contract Proposal_ENS_EP_6_3_Test is ENS_Governance {
         // 79
         {
             _safeExecuteTransaction(
-                0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45,
+                UniswapV3,
                 abi.encodeWithSelector(
                     Uniswap.exactInputSingle.selector,
                     Uniswap.ExactInputSingleParams({
-                        tokenIn: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-                        tokenOut: 0xdAC17F958D2ee523a2206206994597C13D831ec7,
+                        tokenIn: USDC,
+                        tokenOut: USDT,
                         fee: 100,
                         recipient: safe,
                         amountIn: 1 ether,
