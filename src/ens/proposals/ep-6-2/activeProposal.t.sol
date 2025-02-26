@@ -8,24 +8,8 @@ import { IToken } from "@ens/interfaces/IToken.sol";
 import { IGovernor } from "@ens/interfaces/IGovernor.sol";
 import { ITimelock } from "@ens/interfaces/ITimelock.sol";
 import { IERC20 } from "@contracts/utils/interfaces/IERC20.sol";
-
+import { ISafe } from "@ens/interfaces/ISafe.sol";
 import { ENS_Governance } from "@ens/ens.t.sol";
-
-interface ISafe {
-    function execTransaction(
-        address,
-        uint256,
-        bytes memory,
-        uint8,
-        uint256,
-        uint256,
-        uint256,
-        address,
-        address,
-        bytes memory
-    )
-        external;
-}
 
 struct Allowance {
     uint96 amount;
