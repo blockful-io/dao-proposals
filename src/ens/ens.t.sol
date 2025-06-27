@@ -117,12 +117,16 @@ abstract contract ENS_Governance is Test, IDAO, ENSHelper {
         // Validate if the proposer has enough votes
         assertGe(ensToken.getVotes(proposer), governor.proposalThreshold());
 
+        console2.log("Generating call data");
         // Generate call data
         (targets, values, signatures, calldatas, description) = _generateCallData();
 
         // Hash the description
         descriptionHash = keccak256(bytes(description));
 
+        // Store parameters to be validated after execution
+        _beforeExecution();
+        
         // Calculate proposalId
         proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
 
@@ -134,7 +138,9 @@ abstract contract ENS_Governance is Test, IDAO, ENSHelper {
         }
 
         // Make proposal ready to vote
-        vm.roll(block.number + governor.votingDelay() + 1);
+        uint256 blocksToWait = governor.votingDelay() + 1;
+        vm.roll(block.number + blocksToWait);
+        vm.warp(block.timestamp + blocksToWait * 12);
         assertEq(governor.state(proposalId), 1);
 
         // Delegates vote for the proposal
@@ -144,7 +150,9 @@ abstract contract ENS_Governance is Test, IDAO, ENSHelper {
         }
 
         // Let the voting end
-        vm.roll(block.number + governor.votingPeriod());
+        blocksToWait = governor.votingPeriod();
+        vm.roll(block.number + blocksToWait);
+        vm.warp(block.timestamp + blocksToWait * 12);
         assertEq(governor.state(proposalId), 4);
 
         // Queue the proposal to be executed
@@ -156,11 +164,10 @@ abstract contract ENS_Governance is Test, IDAO, ENSHelper {
         assertTrue(timelock.isOperationPending(proposalIdInTimelock));
 
         // Wait the operation in the DAO wallet timelock to be Ready
-        vm.warp(block.timestamp + timelock.getMinDelay() + 1);
+        uint256 timeToWait = timelock.getMinDelay() + 1;
+        vm.warp(block.timestamp + timeToWait);
+        vm.roll(block.number + timeToWait * 12);
         assertTrue(timelock.isOperationReady(proposalIdInTimelock));
-
-        // Store parameters to be validated after execution
-        _beforeExecution();
 
         // Execute proposal
         governor.execute(targets, values, calldatas, descriptionHash);
