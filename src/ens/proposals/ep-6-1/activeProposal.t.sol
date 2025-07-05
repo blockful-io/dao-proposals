@@ -36,7 +36,7 @@ contract Proposal_ENS_EP_6_1_Test is ENS_Governance {
         return 0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5; // nick.eth
     }
 
-    function _beforeExecution() public override {
+    function _beforeProposal() public override {
         ETHbalanceBeforeTimelock = address(timelock).balance;
         ETHbalanceBeforeRegistrar = address(OldRegistrarController).balance;
     }

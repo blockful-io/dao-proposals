@@ -39,7 +39,7 @@ contract Proposal_ENS_EP_6_12_Test is ENS_Governance {
         return 0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5; // nick.eth
     }
 
-    function _beforeExecution() public override {
+    function _beforeProposal() public override {
         assertEq(root.owner(namehash("ceo")), dnsSecRegistrar);
         assertNotEq(root.resolver(namehash("ceo")), dnsSecResolver);
         assertEq(ensRegistry.owner(namehash("ceo")), address(timelock));
@@ -56,8 +56,8 @@ contract Proposal_ENS_EP_6_12_Test is ENS_Governance {
         bytes[] memory internalCalldatas = new bytes[](3);
         internalCalldatas[0] =
             abi.encodeWithSelector(ENSRoot.setSubnodeOwner.selector, labelhash("ceo"), address(timelock));
-        internalCalldatas[1] = abi.encodeWithSelector(ENSRegistry.setOwner.selector, namehash("ceo"), dnsSecRegistrar);
-        internalCalldatas[2] = abi.encodeWithSelector(ENSRoot.setResolver.selector, namehash("ceo"), dnsSecResolver);
+        internalCalldatas[1] = abi.encodeWithSelector(ENSRoot.setResolver.selector, namehash("ceo"), dnsSecResolver);
+        internalCalldatas[2] = abi.encodeWithSelector(ENSRegistry.setOwner.selector, namehash("ceo"), dnsSecRegistrar);
         bytes memory expectedCalldata = abi.encode(targets, values, internalCalldatas, description);
 
         assertEq(calldatas, internalCalldatas);
@@ -76,3 +76,7 @@ contract Proposal_ENS_EP_6_12_Test is ENS_Governance {
         return true;
     }
 }
+
+
+// [0x8cb8ececa695017707ee0c04095f723270b3c315654d16e337ad54039175a4b000894676000000000000000000000000fe89cc7abb2c4183683ab71653c4cdc9b02d44b7, 0x1896f70a6871d4785070006a666d91b45c606e933e44f42b06ef5bda56431e78ce28553f000000000000000000000000f142b308cf687d4358410a4cb885513b30a42025, 0x5b0fc9c36871d4785070006a666d91b45c606e933e44f42b06ef5bda56431e78ce28553f000000000000000000000000b32cb5677a7c971689228ec835800432b339ba2b]
+// [0x8cb8ececa695017707ee0c04095f723270b3c315654d16e337ad54039175a4b000894676000000000000000000000000fe89cc7abb2c4183683ab71653c4cdc9b02d44b7, 0x5b0fc9c36871d4785070006a666d91b45c606e933e44f42b06ef5bda56431e78ce28553f000000000000000000000000b32cb5677a7c971689228ec835800432b339ba2b, 0x1896f70a6871d4785070006a666d91b45c606e933e44f42b06ef5bda56431e78ce28553f000000000000000000000000f142b308cf687d4358410a4cb885513b30a42025]

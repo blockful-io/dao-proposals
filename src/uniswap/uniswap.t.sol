@@ -69,7 +69,7 @@ abstract contract UNI_Governance is Test, IDAO {
             string memory description
         ) = _generateCallData();
 
-        _beforeExecution();
+        _beforeProposal();
 
         vm.prank(proposer);
         uint256 proposalId = governor.propose(targets, values, signatures, calldatas, description);
@@ -116,7 +116,7 @@ abstract contract UNI_Governance is Test, IDAO {
         votersArray[9] = 0x683a4F9915D6216f73d6Df50151725036bD26C02; // Gauntlet
     }
 
-    function _beforeExecution() public virtual;
+    function _beforeProposal() public virtual;
 
     function _generateCallData()
         public

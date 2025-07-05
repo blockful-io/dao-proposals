@@ -35,7 +35,7 @@ contract Proposal_ENS_EP_5_23_Test is ENS_Governance {
         return 0x76A6D08b82034b397E7e09dAe4377C18F132BbB8;
     }
 
-    function _beforeExecution() public override {
+    function _beforeProposal() public override {
         USDCbalanceBefore = USDC.balanceOf(address(timelock));
         ENSbalanceBefore = ENS.balanceOf(address(timelock));
     }

@@ -25,7 +25,7 @@ contract Proposal_ENS_EP_5_27_Test is ENS_Governance {
         return 0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5; // nick.eth
     }
 
-    function _beforeExecution() public view override {
+    function _beforeProposal() public view override {
         address owner = nameWrapper.owner();
         assertEq(owner, address(timelock));
 

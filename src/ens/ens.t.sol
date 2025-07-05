@@ -107,28 +107,27 @@ abstract contract ENS_Governance is Test, IDAO, ENSHelper {
 
     // Executing each step necessary on the proposal lifecycle
     function test_proposal() public {
-        // Validate if the proposal has enough votes
+        // Validate if voters achieve quorum
         uint256 totalVotes = 0;
         for (uint256 i = 0; i < voters.length; i++) {
             totalVotes += ensToken.getVotes(voters[i]);
         }
         assertGt(totalVotes, governor.quorum(block.number - 1));
 
-        // Validate if the proposer has enough votes
+        // Validate if proposer has enough votes to submit a proposal
         assertGe(ensToken.getVotes(proposer), governor.proposalThreshold());
 
-        console2.log("Generating call data");
         // Generate call data
         (targets, values, signatures, calldatas, description) = _generateCallData();
 
         // Hash the description
         descriptionHash = keccak256(bytes(description));
 
-        // Store parameters to be validated after execution
-        _beforeExecution();
-        
         // Calculate proposalId
         proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        
+        // Store parameters to be validated after execution
+        _beforeProposal();
 
         if (!_isProposalSubmitted()) {
             // Proposal does not exists onchain, so we need to propose it
@@ -199,8 +198,6 @@ abstract contract ENS_Governance is Test, IDAO, ENSHelper {
         votersArray[9] = 0x809FA673fe2ab515FaA168259cB14E2BeDeBF68e; // avsa.eth
     }
 
-    function _beforeExecution() public virtual;
-
     function _generateCallData()
         public
         virtual
@@ -212,7 +209,9 @@ abstract contract ENS_Governance is Test, IDAO, ENSHelper {
             string memory description
         );
 
-    function _afterExecution() public virtual;
-
     function _isProposalSubmitted() public view virtual returns (bool);
+
+    function _beforeProposal() public virtual;
+
+    function _afterExecution() public virtual;
 }
