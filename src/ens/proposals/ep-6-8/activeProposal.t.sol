@@ -230,7 +230,7 @@ contract Proposal_ENS_EP_6_8_Test is ENS_Governance {
     IZodiacRoles roles = IZodiacRoles(0x703806E61847984346d2D7DDd853049627e50A40);
     bytes32 constant MANAGER_ROLE = 0x4d414e4147455200000000000000000000000000000000000000000000000000;
 
-    function _beforeExecution() public override {
+    function _beforeProposal() public override {
         vm.startPrank(karpatkey);
 
         uint256[] memory amounts = new uint256[](2);

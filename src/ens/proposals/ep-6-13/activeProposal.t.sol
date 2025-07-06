@@ -42,7 +42,7 @@ contract Proposal_ENS_EP_6_13_Test is ENS_Governance {
         return 0xe52C39327FF7576bAEc3DBFeF0787bd62dB6d726; // 5pence.eth
     }
 
-    function _beforeExecution() public override {
+    function _beforeProposal() public override {
         // Check initial flow rate (should be lower than new rate)
         currentFlowRate = SUPERFLUID.getFlowrate(address(USDCx), address(timelock), streamPod);
         assertLt(currentFlowRate, NEW_FLOW_RATE);

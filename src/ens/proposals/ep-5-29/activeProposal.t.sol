@@ -40,7 +40,7 @@ contract Proposal_ENS_EP_5_29_Test is ENS_Governance {
         return 0x983110309620D911731Ac0932219af06091b6744; // brantly.eth
     }
 
-    function _beforeExecution() public override {
+    function _beforeProposal() public override {
         USDCFlowRateBefore = superFluid.getAccountFlowrate(address(USDCx), receiver);
         ENSbalanceBefore = ENS.balanceOf(receiver);
     }

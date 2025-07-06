@@ -28,7 +28,7 @@ contract Proposal_ENS_EP_5_26_Test is ENS_Governance {
         return 0xe52C39327FF7576bAEc3DBFeF0787bd62dB6d726;
     }
 
-    function _beforeExecution() public override {
+    function _beforeProposal() public override {
         ENSbalanceBefore = ENS.balanceOf(address(timelock));
     }
 
