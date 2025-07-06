@@ -28,10 +28,10 @@ contract Proposal_ENS_EP_6_12_Test is ENS_Governance {
 
     function _beforeProposal() public override {
         // Verify the DNS registry is the owner of ceo TLD
-        assertEq(ensRegistry.owner(namehash(bytes("ceo"))), DNSRegistrar);
+        assertEq(ensRegistry.owner(namehash("ceo")), DNSRegistrar);
 
         // Verify the DNS registry has no resolver for ceo TLD
-        assertEq(ensRegistry.resolver(namehash(bytes("ceo"))), address(0));
+        assertEq(ensRegistry.resolver(namehash("ceo")), address(0));
     }
 
     function _generateCallData()
@@ -77,10 +77,10 @@ contract Proposal_ENS_EP_6_12_Test is ENS_Governance {
 
     function _afterExecution() public view override {
         // Verify the DNS registry is still the owner of ceo TLD
-        assertEq(ensRegistry.owner(namehash(bytes("ceo"))), DNSRegistrar);
+        assertEq(ensRegistry.owner(namehash("ceo")), DNSRegistrar);
 
         // Verify the DNS registry has a resolver for ceo TLD
-        assertEq(ensRegistry.resolver(namehash(bytes("ceo"))), offchainDNSResolver);
+        assertEq(ensRegistry.resolver(namehash("ceo")), offchainDNSResolver);
     }
 
     function _isProposalSubmitted() public pure override returns (bool) {
