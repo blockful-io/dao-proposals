@@ -85,8 +85,11 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         values[1] = 0;
         calldatas[1] = abi.encodeWithSelector(
             IENSRegistryWithFallback.setSubnodeRecord.selector,
-            namehash("8000a4b1.reverse"),
-            arbitrumReverseResolver
+            namehash("reverse"),
+            labelhash("8000a4b1"),
+            timelock,
+            arbitrumReverseResolver,
+            3000 // TODO: Check TTL
         );
         signatures[1] = "";
         
@@ -95,8 +98,11 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         values[2] = 0;
         calldatas[2] = abi.encodeWithSelector(
             IENSRegistryWithFallback.setSubnodeRecord.selector,
-            namehash("80002105.reverse"),
-            baseReverseResolver
+            namehash("reverse"),
+            labelhash("80002105"),
+            timelock,
+            baseReverseResolver,
+            3000 // TODO: Check TTL
         );
         signatures[2] = "";
         
@@ -105,8 +111,11 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         values[3] = 0;
         calldatas[3] = abi.encodeWithSelector(
             IENSRegistryWithFallback.setSubnodeRecord.selector,
-            namehash("8000e708.reverse"),
-            lineaReverseResolver
+            namehash("reverse"),
+            labelhash("8000e708"),
+            timelock,
+            lineaReverseResolver,
+            3000 // TODO: Check TTL
         );
         signatures[3] = "";
         
@@ -115,8 +124,11 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         values[4] = 0;
         calldatas[4] = abi.encodeWithSelector(
             IENSRegistryWithFallback.setSubnodeRecord.selector,
-            namehash("8000000a.reverse"),
-            optimismReverseResolver
+            namehash("reverse"),
+            labelhash("8000000a"),
+            timelock,
+            optimismReverseResolver,
+            uint32(3000) // TODO: Check TTL
         );
         signatures[4] = "";
         
@@ -125,8 +137,11 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         values[5] = 0;
         calldatas[5] = abi.encodeWithSelector(
             IENSRegistryWithFallback.setSubnodeRecord.selector,
-            namehash("80082750.reverse"),
-            scrollReverseResolver
+            namehash("reverse"),
+            labelhash("80082750"),
+            timelock,
+            scrollReverseResolver,
+            3000 // TODO: Check TTL
         );
         signatures[5] = "";
         
@@ -179,7 +194,11 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         );
         signatures[10] = "";
 
-        // 8. Set name for dnssec.ens.eth
+ 
+        console2.log("namehash('dnssec.ens.eth'):");
+        console2.logBytes32(namehash(bytes("dnssec.ens.eth")));
+        
+        // 8.1 Set name for dnssec.ens.eth
         targets[11] = address(reverseRegistrar);
         values[11] = 0;
         calldatas[11] = abi.encodeWithSelector(
@@ -191,7 +210,7 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         );
         signatures[11] = "";
 
-        // 9. Set name for registrar.ens.eth
+        // 8.2 Set name for registrar.ens.eth
         targets[12] = address(reverseRegistrar);
         values[12] = 0;
         calldatas[12] = abi.encodeWithSelector(
@@ -203,7 +222,7 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         );
         signatures[12] = "";
 
-        // 10. Set name for root.ens.eth
+        // 8.3 Set name for root.ens.eth
         targets[13] = address(reverseRegistrar);
         values[13] = 0;
         calldatas[13] = abi.encodeWithSelector(
@@ -215,7 +234,7 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         );
         signatures[13] = "";
 
-        // 11. Set name for controller.ens.eth
+        // 8.4 Set name for controller.ens.eth
         targets[14] = address(reverseRegistrar);
         values[14] = 0;
         calldatas[14] = abi.encodeWithSelector(
@@ -227,7 +246,7 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         );
         signatures[14] = "";
 
-        // 12. Set name for default.reverse.ens.eth
+        // 8.5 Set name for default.reverse.ens.eth
         targets[15] = address(reverseRegistrar);
         values[15] = 0;
         calldatas[15] = abi.encodeWithSelector(
