@@ -12,6 +12,10 @@ import { IENSReverseRegistrar } from "@ens/interfaces/IENSReverseRegistrar.sol";
 import { IENSNewReverseRegistrar } from "@ens/interfaces/IENSNewReverseRegistrar.sol";
 import { IEthTLDResolver } from "@ens/interfaces/IEthTLDResolver.sol";
 
+abstract contract NameResolver {
+    function setName(bytes32 node, string memory name) public virtual;
+}
+
 contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
     // Contract addresses - Update with actual addresses
     IENSRegistryWithFallback ensRegistry = IENSRegistryWithFallback(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
@@ -28,6 +32,11 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
     address scrollReverseResolver = 0xd38bf7c18c25AC1b4ce2CC077cbC35b2B97f01e7;
     address newEthRegistrarController = 0x59E16fcCd424Cc24e280Be16E11Bcd56fb0CE547;
     address newPublicResolver = 0xF29100983E058B709F3D539b0c765937B804AC15;
+    
+    // ENS Contract addresses for reverse resolution
+    address dnssecEnsAddr = 0x0fc3152971714E5ed7723FAFa650F86A4BaF30C5;
+    address rootEnsAddr = 0xaB528d626EC275E3faD363fF1393A41F581c5897;
+    address defaultReverseEnsAddr = 0x283F227c4Bd38ecE252C4Ae7ECE650B0e913f1f9;
 
     // Configuration parameters - Update with actual values
 
@@ -48,6 +57,10 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
     function _beforeProposal() public override {
         // TODO: Capture initial state before execution
         // TODO: validate ownership of new contracts deployed
+        // vm.startPrank(0x59E16fcCd424Cc24e280Be16E11Bcd56fb0CE547);
+        // console2.log(msg.sender);
+        // // NameResolver(newPublicResolver).setName(namehash("dnssec.ens.eth"), "dnssec.ens.eth");
+        // vm.stopPrank();
     }
 
     function _generateCallData()
@@ -193,65 +206,61 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
             newPublicResolver
         );
         signatures[10] = "";
-
- 
-        console2.log("namehash('dnssec.ens.eth'):");
-        console2.logBytes32(namehash(bytes("dnssec.ens.eth")));
         
-        // 8.1 Set name for dnssec.ens.eth
+        // 8.1
         targets[11] = address(reverseRegistrar);
         values[11] = 0;
         calldatas[11] = abi.encodeWithSelector(
             IENSReverseRegistrar.setNameForAddr.selector,
-            0x0fc3152971714E5ed7723FAFa650F86A4BaF30C5,
+            dnssecEnsAddr,
             timelock,
             newPublicResolver,
             "dnssec.ens.eth"
         );
         signatures[11] = "";
 
-        // 8.2 Set name for registrar.ens.eth
+        // 8.2
         targets[12] = address(reverseRegistrar);
         values[12] = 0;
         calldatas[12] = abi.encodeWithSelector(
             IENSReverseRegistrar.setNameForAddr.selector,
-            0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85,
+            ensRegistrar,
             timelock,
             newPublicResolver,
             "registrar.ens.eth"
         );
         signatures[12] = "";
 
-        // 8.3 Set name for root.ens.eth
+        // 8.3
         targets[13] = address(reverseRegistrar);
         values[13] = 0;
         calldatas[13] = abi.encodeWithSelector(
             IENSReverseRegistrar.setNameForAddr.selector,
-            0xaB528d626EC275E3faD363fF1393A41F581c5897,
+            rootEnsAddr,
             timelock,
             newPublicResolver,
             "root.ens.eth"
         );
         signatures[13] = "";
 
-        // 8.4 Set name for controller.ens.eth
+        // 8.4
         targets[14] = address(reverseRegistrar);
         values[14] = 0;
         calldatas[14] = abi.encodeWithSelector(
             IENSReverseRegistrar.setNameForAddr.selector,
-            0x59E16fcCd424Cc24e280Be16E11Bcd56fb0CE547,
+            newEthRegistrarController,
             timelock,
             newPublicResolver,
             "controller.ens.eth"
         );
-        signatures[14] = "";
+        signatures[14] = "";                                                                                                                                                                                                                                                                                                                                           
 
-        // 8.5 Set name for default.reverse.ens.eth
+        // 8.5
         targets[15] = address(reverseRegistrar);
         values[15] = 0;
         calldatas[15] = abi.encodeWithSelector(
             IENSReverseRegistrar.setNameForAddr.selector,
-            0x283F227c4Bd38ecE252C4Ae7ECE650B0e913f1f9,
+            defaultReverseEnsAddr,
             timelock,
             newPublicResolver,
             "default.reverse.ens.eth"
