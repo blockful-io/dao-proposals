@@ -12,12 +12,18 @@ import { IENSReverseRegistrar } from "@ens/interfaces/IENSReverseRegistrar.sol";
 import { IENSNewReverseRegistrar } from "@ens/interfaces/IENSNewReverseRegistrar.sol";
 import { IEthTLDResolver } from "@ens/interfaces/IEthTLDResolver.sol";
 import { INewEthRegistrarController } from "@ens/interfaces/INewEthRegistrarController.sol";
+import { IArbitrumReverseResolver } from "@ens/interfaces/IArbitrumReverseResolver.sol";
+import { IBaseReverseResolver } from "@ens/interfaces/IBaseReverseResolver.sol";
+import { ILineaReverseResolver } from "@ens/interfaces/ILineaReverseResolver.sol";
+import { IOptimismReverseResolver } from "@ens/interfaces/IOptimismReverseResolver.sol";
+import { IScrollReverseResolver } from "@ens/interfaces/IScrollReverseResolver.sol";
+import { IDefaultReverseEnsAddr } from "@ens/interfaces/IDefaultReverseEnsAddr.sol";
 
 abstract contract NameResolver {
     function setName(bytes32 node, string memory name) public virtual;
 }
 
-contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
+contract Proposal_ENS_EP_Enable_ENSIP19_Test is ENS_Governance {
     // Contract addresses - Update with actual addresses
     IENSNewReverseRegistrar newReverseRegistrar = IENSNewReverseRegistrar(0x283F227c4Bd38ecE252C4Ae7ECE650B0e913f1f9);
     INewEthRegistrarController newEthRegistrarController = 
@@ -28,19 +34,21 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
     IENSReverseRegistrar reverseRegistrar = IENSReverseRegistrar(0xa58E81fe9b61B5c3fE2AFD33CF304c454AbFc7Cb);
     IEthTLDResolver ethTLDResolver = IEthTLDResolver(0x30200E0cb040F38E474E53EF437c95A1bE723b2B);
 
+    IArbitrumReverseResolver arbitrumReverseResolver = 
+        IArbitrumReverseResolver(0x4b9572C03AAa8b0Efa4B4b0F0cc0f0992bEDB898);
+    IBaseReverseResolver baseReverseResolver = IBaseReverseResolver(0xc800DBc8ff9796E58EfBa2d7b35028DdD1997E5e);
+    ILineaReverseResolver lineaReverseResolver = ILineaReverseResolver(0x0Ce08a41bdb10420FB5Cac7Da8CA508EA313aeF8);
+    IOptimismReverseResolver optimismReverseResolver = 
+        IOptimismReverseResolver(0xF9Edb1A21867aC11b023CE34Abad916D29aBF107);
+    IScrollReverseResolver scrollReverseResolver = IScrollReverseResolver(0xd38bf7c18c25AC1b4ce2CC077cbC35b2B97f01e7);
+
     // Variables
     address newDefaultReverseResolver = 0xA7d635c8de9a58a228AA69353a1699C7Cc240DCF;
     address newPublicResolver = 0xF29100983E058B709F3D539b0c765937B804AC15;
-
-    address arbitrumReverseResolver = 0x4b9572C03AAa8b0Efa4B4b0F0cc0f0992bEDB898;
-    address baseReverseResolver = 0xc800DBc8ff9796E58EfBa2d7b35028DdD1997E5e;
-    address lineaReverseResolver = 0x0Ce08a41bdb10420FB5Cac7Da8CA508EA313aeF8;
-    address optimismReverseResolver = 0xF9Edb1A21867aC11b023CE34Abad916D29aBF107;
-    address scrollReverseResolver = 0xd38bf7c18c25AC1b4ce2CC077cbC35b2B97f01e7;
     
     address dnssecEnsAddr = 0x0fc3152971714E5ed7723FAFa650F86A4BaF30C5;
     address rootEnsAddr = 0xaB528d626EC275E3faD363fF1393A41F581c5897;
-    address defaultReverseEnsAddr = 0x283F227c4Bd38ecE252C4Ae7ECE650B0e913f1f9;
+    IDefaultReverseEnsAddr defaultReverseEnsAddr = IDefaultReverseEnsAddr(0x283F227c4Bd38ecE252C4Ae7ECE650B0e913f1f9);
 
     // Coin type hex values
     string baseCoinType = bytes4ToHexString(bytes4(uint32(2147492101)));
@@ -59,10 +67,17 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         return 0xe52C39327FF7576bAEc3DBFeF0787bd62dB6d726; // Update with actual proposer
     }
 
-    function _beforeProposal() public override {
-        // TODO: Capture initial state before execution
-        // TODO: validate ownership of new contracts deployed
-
+    function _beforeProposal() public view override {
+        // check ownership of new contracts deployed
+        // newDefaultReverseResolver and newPublicResolver do not have owners
+        assertEq(newReverseRegistrar.owner(), address(timelock), "newReverseRegistrar owner is not timelock");
+        assertEq(newEthRegistrarController.owner(), address(timelock), "newEthRegistrarController owner is not timelock");
+        assertEq(arbitrumReverseResolver.owner(), address(timelock), "arbitrumReverseResolver owner is not timelock");
+        assertEq(baseReverseResolver.owner(), address(timelock), "baseReverseResolver owner is not timelock");
+        assertEq(lineaReverseResolver.owner(), address(timelock), "lineaReverseResolver owner is not timelock");
+        assertEq(optimismReverseResolver.owner(), address(timelock), "optimismReverseResolver owner is not timelock");
+        assertEq(scrollReverseResolver.owner(), address(timelock), "scrollReverseResolver owner is not timelock");
+        assertEq(defaultReverseEnsAddr.owner(), address(timelock), "defaultReverseEnsAddr owner is not timelock");
     }
 
     function _generateCallData()
@@ -274,7 +289,7 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         values[15] = 0;
         calldatas[15] = abi.encodeWithSelector(
             IENSReverseRegistrar.setNameForAddr.selector,
-            defaultReverseEnsAddr,
+            address(defaultReverseEnsAddr),
             timelock,
             newPublicResolver,
             "default.reverse.ens.eth"
@@ -295,27 +310,27 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
         // 2. Verify that L2 reverse resolvers were set correctly
         assertEq(
             ensRegistry.resolver(keccak256(abi.encodePacked(namehash("reverse"), labelhash(arbitrumCoinType)))), 
-            arbitrumReverseResolver, 
+            address(arbitrumReverseResolver), 
             "Arbitrum reverse resolver not set"
         );
         assertEq(
             ensRegistry.resolver(keccak256(abi.encodePacked(namehash("reverse"), labelhash(baseCoinType)))), 
-            baseReverseResolver, 
+            address(baseReverseResolver), 
             "Base reverse resolver not set"
         );
         assertEq(
             ensRegistry.resolver(keccak256(abi.encodePacked(namehash("reverse"), labelhash(lineaCoinType)))), 
-            lineaReverseResolver, 
+            address(lineaReverseResolver), 
             "Linea reverse resolver not set"
         );
         assertEq(
             ensRegistry.resolver(keccak256(abi.encodePacked(namehash("reverse"), labelhash(optimismCoinType)))), 
-            optimismReverseResolver, 
+            address(optimismReverseResolver), 
             "Optimism reverse resolver not set"
         );
         assertEq(
             ensRegistry.resolver(keccak256(abi.encodePacked(namehash("reverse"), labelhash(scrollCoinType)))), 
-            scrollReverseResolver, 
+            address(scrollReverseResolver), 
             "Scroll reverse resolver not set"
         );
         
@@ -374,7 +389,7 @@ contract Proposal_ENS_EP_Enable_L2_Test is ENS_Governance {
             "Controller reverse name not set"
         );
         assertEq(
-            ensRegistry.resolver(reverseRegistrar.node(defaultReverseEnsAddr)), 
+            ensRegistry.resolver(reverseRegistrar.node(address(defaultReverseEnsAddr))), 
             newPublicResolver, 
             "Default reverse name not set"
         );
